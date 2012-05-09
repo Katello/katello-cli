@@ -15,21 +15,14 @@
 
 from katello.client.api.base import KatelloAPI
 
-class PackageAPI(KatelloAPI):
+class VersionAPI(KatelloAPI):
     """
-    Connection class to access package calls
+    Connection class to access  version information
     """
-    def package(self, packageId, repoId):
-        path = "/api/repositories/%s/packages/%s" % (repoId, packageId)
-        pack = self.server.GET(path)[1]
-        return pack
+    def version(self):
+        path = "/api/version"
+        return self.server.GET(path)[1]
 
-    def packages_by_repo(self, repoId):
-        path = "/api/repositories/%s/packages" % repoId
-        pack_list = self.server.GET(path)[1]
-        return pack_list
-
-    def search(self, query, repoId):
-        path = "/api/repositories/%s/packages/search" % repoId
-        pack_list = self.server.GET(path, {"search": query})[1]
-        return pack_list
+    def version_formatted(self):
+        v = self.version()
+        return v['name'] + ' ' + v['version']
