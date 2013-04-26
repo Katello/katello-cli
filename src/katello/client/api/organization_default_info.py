@@ -33,6 +33,7 @@ class OrganizationDefaultInfoAPI(KatelloAPI):
         path = "/api/organizations/%s/default_info/%s/%s" % (u_str(org_name), u_str(informable_type), u_str(keyname))
         return self.server.DELETE(path)[1]
 
-    def apply(self, org_name,  informable_type):
+    def apply(self, org_name, informable_type, async=True):
+        data = {'async': async}
         path = "/api/organizations/%s/default_info/%s/apply" % (u_str(org_name), u_str(informable_type))
-        return self.server.POST(path)[1]
+        return self.server.POST(path, data)[1]

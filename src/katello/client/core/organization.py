@@ -356,6 +356,7 @@ class ApplyDefaultInfo(OrganizationAction):
     def setup_parser(self, parser):
         parser.add_option("--name", dest='name', help=_("organization name eg: foo.example.com (required)"))
         parser.add_option("--type", dest='type', help=_("'system' (required)"))
+        parser.add_option("--no-async", dest="no_async", action="store_true", default=False, help=_("do not run this action asynchronously"))
 
     def check_options(self, validator):
         validator.require(('name', 'type'))
@@ -363,14 +364,21 @@ class ApplyDefaultInfo(OrganizationAction):
     def run(self):
         org_name = self.get_option('name')
         informable_type = self.get_option('type').lower()
-        response = self.default_info_api.apply(org_name, informable_type)
+        async = not self.get_option('no_async')
 
-        if response:
-            print _("Applied [ %(sys_count)d %(katello_obj)s ] default custom info in Org [ %(org_name)s ]") \
-                % {'sys_count': len(response), 'org_name': org_name, 'katello_obj': informable_type.capitalize()}
+        if async:
+            task = AsyncTask(self.default_info_api.apply(org_name, informable_type, async)['task'])
+            run_spinner_in_bg(wait_for_async_task, [task], message=_("Applying default info, please wait... "))
+
+            return evaluate_task_status(task,
+                failed   = _("Organization [ %s ] failed to apply default info") % org_name,
+                canceled = _("Organization [ %s ] canceled applying default info") % org_name,
+                ok       = _("Organization [ %s ] completed applying default info") % org_name
+            )
         else:
-            print _("Could not apply [ %(katello_obj)s ] default custom info keys to Org [ %(org_name)s ]") \
-                % {'org_name': org_name, 'katello_obj': informable_type.capitalize()}
+            response = self.default_info_api.apply(org_name, informable_type, async)
+
+            print _("Organization [ %s ] completed applying default info") % org_name
 
 # organization command ------------------------------------------------------------
 
