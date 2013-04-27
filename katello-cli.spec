@@ -21,7 +21,7 @@ Summary:       Client package for managing application life-cycle for Linux syst
 Group:         Applications/System
 License:       GPLv2
 URL:           http://www.katello.org
-Version:       1.4.1
+Version:       1.4.2
 Release:       1%{?dist}
 Source0:       https://fedorahosted.org/releases/k/a/katello/%{name}-%{version}.tar.gz
 Requires:      %{base_name}-cli-common
@@ -166,6 +166,37 @@ popd
 %{homedir}/tests
 
 %changelog
+* Sat Apr 27 2013 Mike McCune <mmccune@redhat.com> 1.4.2-1
+- adding rel-eng directory for new location (mmccune@redhat.com)
+- errata - api/cli - update to use errata_id vs id (bbuckingham@redhat.com)
+- 948733 - Worked on content view definition update options
+  (daviddavis@redhat.com)
+- Errata list should require either repo_id or repo info
+  (daviddavis@redhat.com)
+- Fixed filters cli to now associate partial products from cvd
+  (paji@redhat.com)
+- Allowing content views to be deleted from CLI (daviddavis@redhat.com)
+- dist-fixes - allow create in headpin mode dist-fixes - renamed SMA to
+  distributor splice-api-update - updates to api splice-api-updates - download
+  manifest api splice-api-updates - export api splice-api-updates - api for
+  /consumers/<id>/checkin (thomasmckay@redhat.com)
+- Adding filter id option to CLI (daviddavis@redhat.com)
+- Reusing option parser content view function for add_view
+  (daviddavis@redhat.com)
+- Implementation for add/remove filter rules via cli (paji@redhat.com)
+- Updating tests for filter id changes (daviddavis@redhat.com)
+- Removing duplicate apis from content view definition CLI
+  (daviddavis@redhat.com)
+- Querying filters with filter_id rather than filter_name
+  (daviddavis@redhat.com)
+- 952249 - Validating overlapping content in component views
+  (daviddavis@redhat.com)
+- 952249 - Validating overlapping content in component views
+  (daviddavis@redhat.com)
+- 951538 - Fixing CLI publish message (daviddavis@redhat.com)
+- 950539 - Adding content view option to package/errata list
+  (daviddavis@redhat.com)
+- Fixing composite content view smoke test (daviddavis@redhat.com)
 * Fri Apr 12 2013 Justin Sherrill <jsherril@redhat.com> 1.4.1-1
 - version bump to 1.4 (jsherril@redhat.com)
 
