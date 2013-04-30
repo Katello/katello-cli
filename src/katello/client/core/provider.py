@@ -23,7 +23,7 @@ from katello.client.server import ServerRequestError
 from katello.client.core.base import BaseAction, Command
 from katello.client.lib.ui.progress import run_async_task_with_status, run_spinner_in_bg, wait_for_async_task
 from katello.client.lib.control import system_exit
-from katello.client.lib.async import AsyncTask, ImportManifestAsyncTask, evaluate_task_status
+from katello.client.lib.async import AsyncTask, ManifestAsyncTask, evaluate_task_status
 from katello.client.lib.utils.io import get_abs_path
 from katello.client.lib.utils.data import test_record
 from katello.client.lib.ui.formatters import format_sync_state, format_sync_time
@@ -289,10 +289,10 @@ class ImportManifest(SingleProviderAction):
 
         prov = get_provider(orgName, provName)
 
-        task = ImportManifestAsyncTask(self.api.import_manifest(prov["id"], f, force))
+        task = ManifestAsyncTask(self.api.import_manifest(prov["id"], f, force))
         run_spinner_in_bg(wait_for_async_task, [task], message=_("Importing manifest, please wait... "))
 
-        return ImportManifestAsyncTask.evaluate_task_status(task,
+        return ManifestAsyncTask.evaluate_task_status(task,
             failed =   _("Provider [ %s ] failed to import manifest") % provName,
             canceled = _("Provider [ %s ] canceled manifest import") % provName,
             ok =       _("Provider [ %s ] manifest import complete") % provName
@@ -317,6 +317,36 @@ class DeleteManifest(SingleProviderAction):
             raise re, None, sys.exc_info()[2]
         print response
         return os.EX_OK
+
+
+# ==============================================================================
+class RefreshManifest(SingleProviderAction):
+
+    description = _('refresh a previously imported manifest')
+
+
+    def setup_parser(self, parser):
+        super(RefreshManifest, self).setup_parser(parser)
+
+
+    def check_options(self, validator):
+        super(RefreshManifest, self).check_options(validator)
+
+
+    def run(self):
+        provName = self.get_option('name')
+        orgName  = self.get_option('org')
+
+        prov = get_provider(orgName, provName)
+
+        task = ManifestAsyncTask(self.api.refresh_manifest(prov["id"]))
+        run_spinner_in_bg(wait_for_async_task, [task], message=_("Refreshing manifest, please wait... "))
+
+        return ManifestAsyncTask.evaluate_task_status(task,
+            failed =   _("Provider [ %s ] failed to refresh manifest") % provName,
+            canceled = _("Provider [ %s ] canceled manifest refresh") % provName,
+            ok =       _("Provider [ %s ] manifest refresh complete") % provName
+        )
 
 
 # ------------------------------------------------------------------------------

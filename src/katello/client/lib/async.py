@@ -140,7 +140,7 @@ class SystemAsyncTask(AsyncTask):
         return [task["result_description"] for task in self._tasks]
 
 
-class ImportManifestAsyncTask(AsyncTask):
+class ManifestAsyncTask(AsyncTask):
 
     @classmethod
     def __format_display_message(cls, task):
@@ -178,7 +178,7 @@ class ImportManifestAsyncTask(AsyncTask):
         :param ok:  message that is printed when the task went ok
         :return: EX_DATAERR on failure or cancel, otherwise EX_OK
         """
-        evaluate_task_status(task, failed, canceled, ok,
+        return evaluate_task_status(task, failed, canceled, ok,
             error_formatter=cls.__format_display_message,
             status_formatter=cls.__format_display_message
         )

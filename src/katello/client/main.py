@@ -260,6 +260,7 @@ def setup_admin(katello_cmd, mode=get_katello_mode()):
     prov_cmd.add_command('info', provider.Info())
     prov_cmd.add_command('list', provider.List())
     prov_cmd.add_command('import_manifest', provider.ImportManifest())
+    prov_cmd.add_command('refresh_manifest', provider.RefreshManifest())
     if mode == 'headpin':
         prov_cmd.add_command('delete_manifest', provider.DeleteManifest())
     if mode == 'katello':
