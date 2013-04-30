@@ -104,6 +104,11 @@ class SystemAPI(KatelloAPI):
         path = "/api/systems/%s" % system_id
         return self.server.GET(path)[1]
 
+    def find_by_custom_info(self, org, key, value):
+        path = "/api/organizations/%s/systems" % org
+        query = {"search": "custom_info.%s:%s" % (key, u_str(value))}
+        return self.server.GET(path, query)[1]
+
     def tasks(self, org_name, environment_id, system_name = None, system_uuid = None):
         params = {}
         update_dict_unless_none(params, "environment_id", environment_id)
