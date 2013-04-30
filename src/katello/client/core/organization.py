@@ -356,7 +356,8 @@ class ApplyDefaultInfo(OrganizationAction):
     def setup_parser(self, parser):
         parser.add_option("--name", dest='name', help=_("organization name eg: foo.example.com (required)"))
         parser.add_option("--type", dest='type', help=_("'system' (required)"))
-        parser.add_option("--no-async", dest="no_async", action="store_true", default=False, help=_("do not run this action asynchronously"))
+        parser.add_option("--no-async", dest="no_async",
+            action="store_true", default=False, help=_("do not run this action asynchronously"))
 
     def check_options(self, validator):
         validator.require(('name', 'type'))
@@ -376,9 +377,10 @@ class ApplyDefaultInfo(OrganizationAction):
                 ok       = _("Organization [ %s ] completed applying default info") % org_name
             )
         else:
-            response = self.default_info_api.apply(org_name, informable_type, async)
+            self.default_info_api.apply(org_name, informable_type, async)
 
             print _("Organization [ %s ] completed applying default info") % org_name
+            return os.EX_OK
 
 # organization command ------------------------------------------------------------
 
