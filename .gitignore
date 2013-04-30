@@ -28,3 +28,6 @@ locale/POTFILES.in
 locale/*.mo
 locale/cover
 locale/doc/build
+
+# ctags
+tags
