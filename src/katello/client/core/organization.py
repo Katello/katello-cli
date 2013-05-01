@@ -109,6 +109,7 @@ class Info(OrganizationAction):
         self.printer.add_column('id', _("ID"))
         self.printer.add_column('name', _("Name"))
         self.printer.add_column('description', _("Description"), multiline=True)
+        self.printer.add_column('service_level', _("Default Service Level"))
         self.printer.add_column('service_levels', _("Available Service Levels"), multiline=True)
         self.printer.add_column('system_info_keys', _("Default System Info Keys"), multiline=True,
             show_with=printer.VerboseStrategy)
@@ -155,7 +156,9 @@ class Update(OrganizationAction):
         parser.add_option('--name', dest='name',
                                help=_("organization name eg: foo.example.com (required)"))
         parser.add_option("--description", dest="description",
-                               help=_("consumer description eg: foo's organization"))
+                               help=_("organization description eg: foo's organization"))
+        parser.add_option('--servicelevel', dest='sla',
+                               help=_("service level agreement"))
 
     def check_options(self, validator):
         validator.require('name')
@@ -163,8 +166,20 @@ class Update(OrganizationAction):
     def run(self):
         name        = self.get_option('name')
         description = self.get_option('description')
+        sla         = self.get_option('sla')
 
-        self.api.update(name, description)
+        updates = {}
+        if description:
+            updates['description'] = description
+        if sla is not None:
+            updates['service_level'] = sla
+
+        response = self.api.update(name, updates)
+
+        test_record(response,
+            _("Successfully updated organization [ %s ]") % name,
+            _("Could not update organization [ %s ]") % name
+        )
         print _("Successfully updated org [ %s ]") % name
         return os.EX_OK
 
