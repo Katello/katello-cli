@@ -110,8 +110,9 @@ class AsyncTask():
                 errors += task['progress'].get('error_details', [])
         return errors
 
-    def errors(self):
-        return [task["result"]["errors"] for task in self._tasks if isinstance(task["result"], dict)]
+    def errors(self):        
+        return [task["result"].get("errors") for task in self._tasks \
+            if isinstance(task["result"], dict) and "errors" in task["result"]] 
 
     def _get_progress_sum(self, name):
         return sum([t['progress'][name] for t in self._tasks])
