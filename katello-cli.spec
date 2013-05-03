@@ -153,7 +153,7 @@ popd
 %attr(755,root,root) %{_bindir}/%{base_name}-debug-certificates
 %config(noreplace) %{_sysconfdir}/%{base_name}/client.conf
 %{_sysconfdir}/bash_completion.d/%{base_name}
-%doc README LICENSE
+%doc README.md LICENSE
 %{_mandir}/man1/%{base_name}.1*
 %{_mandir}/man1/headpin.1*
 %{_mandir}/man1/%{base_name}-debug-certificates.1*
