@@ -39,7 +39,7 @@ test_success "products refresh" provider refresh_products --name "Red Hat" --org
 test_success "repo enable" repo enable --name="$MANIFEST_REPO" --product "$MANIFEST_EPROD" --org "$MANIFEST_ORG"
 test_success "repo synchronize" repo synchronize --name="$MANIFEST_REPO" --product "$MANIFEST_EPROD" --org "$MANIFEST_ORG"
 test_success "changeset create" changeset create --org="$MANIFEST_ORG" --environment="$MANIFEST_ENV" --name="$CS1_NAME"
-test_success "changeset add product" changeset update  --org="$MANIFEST_ORG" --environment="$MANIFEST_ENV" --name="$CS1_NAME" --add_product="$MANIFEST_EPROD"
+test_success "changeset add view" changeset update  --org="$MANIFEST_ORG" --environment="$MANIFEST_ENV" --name="$CS1_NAME" --add_content_view="$TEST_VIEW"
 check_delayed_jobs_running
 test_success "changeset promote" changeset promote --org="$MANIFEST_ORG" --environment="$MANIFEST_ENV" --name="$CS1_NAME"
 POOLID=$($CMD org subscriptions --name "$MANIFEST_ORG" -g -d ";" --noheading | grep "$MANIFEST_PROD_CP" | awk -F ';' '{print $3}') # grab a pool for CP
