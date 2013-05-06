@@ -761,7 +761,7 @@ class Update(SystemAction):
             updates['location'] = new_location
         if new_release:
             updates['releaseVer'] = new_release
-        if new_sla:
+        if new_sla is not None:
             updates['serviceLevel'] = new_sla
         if new_environment_name:
             new_environment = get_environment(org_name, new_environment_name)
