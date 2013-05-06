@@ -1,0 +1,7 @@
+[main]
+host = https://www.transifex.net
+
+[katello.cli]
+file_filter = locale/<lang>/katello-cli.po
+source_file = locale/keys.pot
+source_lang = en
