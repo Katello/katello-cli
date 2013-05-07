@@ -63,6 +63,9 @@ class Create(PermissionAction):
         parser.add_option('--tags', dest='tags', type="list", help=_("tags for the permission"), default="")
         parser.add_option('--all_tags', action="store_true", dest='all_tags',
             help=_("use to set all tags"), default=False)
+        parser.add_option('--all_verbs', action="store_true", dest='all_verbs',
+            help=_("use to set all verbs"), default=False)
+
 
     def check_options(self, validator):
         validator.require(('user_role', 'name', 'scope'))
@@ -98,12 +101,12 @@ class Create(PermissionAction):
         verbs = self.get_option('verbs')
         tags = self.get_option('tags')
         all_tags = self.get_option('all_tags')
-
+        all_verbs = self.get_option('all_verbs')
         tag_ids = self.tags_to_ids(tags, org_name, scope)
 
         role = get_role(role_name)
 
-        permission = self.api.create(role['id'], name, desc, scope, verbs, tag_ids, org_name, all_tags)
+        permission = self.api.create(role['id'], name, desc, scope, verbs, tag_ids, org_name, all_tags, all_verbs)
         test_record(permission,
             _("Successfully created permission [ %(name)s ] for user role [ %(role)s ]") \
             % {'name':name, 'role':role['name']},

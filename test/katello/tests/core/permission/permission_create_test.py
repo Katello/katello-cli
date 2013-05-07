@@ -47,7 +47,8 @@ class PermissionCreateTest(CLIActionTestCase):
         'scope': PERMISSION['resource_type']['name'],
         'verbs': ['v1', 'v2'],
         'tags': 't1,t2',
-        'all_tags': 'True'
+        'all_tags': 'True',
+        'all_verbs': 'False'
     }
 
     def setUp(self):
@@ -91,7 +92,7 @@ class PermissionCreateTest(CLIActionTestCase):
         self.mock_options(self.FULL_OPTIONS)
         self.mock(self.action, 'tags_to_ids', ['1', '2'])
         self.run_action()
-        self.action.api.create.assert_called_once_with(self.ROLE['id'], self.PERMISSION['name'], self.PERMISSION['description'], self.PERMISSION['resource_type']['name'], ['v1', 'v2'], ['1', '2'], None, 'True')
+        self.action.api.create.assert_called_once_with(self.ROLE['id'], self.PERMISSION['name'], self.PERMISSION['description'], self.PERMISSION['resource_type']['name'], ['v1', 'v2'], ['1', '2'], None, 'True', 'False')
 
     def test_returns_error_when_permission_not_created(self):
         self.mock(self.action, 'tags_to_ids', [])
