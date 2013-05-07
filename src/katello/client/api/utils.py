@@ -223,12 +223,11 @@ def get_sync_plan(org_name, name):
 
 def get_permission(role_name, permission_name):
     permission_api = PermissionAPI()
-
     role = get_role(role_name)
 
     perm = permission_api.permission_by_name(role['id'], permission_name)
     if perm == None:
-        raise ApiDataError(_("Cannot find permission [ %(role_name)s ] for user role [ %(permission_name)s ]") %
+        raise ApiDataError(_("Cannot find permission [ %(permission_name)s ] for user role [ %(role_name)s ]") %
             {'role_name':role_name, 'permission_name':permission_name})
     return perm
 
