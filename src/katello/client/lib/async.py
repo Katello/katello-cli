@@ -110,8 +110,8 @@ class AsyncTask():
                 errors += task['progress'].get('error_details', [])
         return errors
 
-    def errors(self):        
-        return [task["result"].get("errors") for task in self._tasks \
+    def errors(self):       
+        return [task["result"].get("errors")[0] for task in self._tasks \
             if isinstance(task["result"], dict) and "errors" in task["result"]] 
 
     def _get_progress_sum(self, name):
@@ -119,7 +119,7 @@ class AsyncTask():
 
     @classmethod
     def _subtask_is_running(cls, task):
-        return task['state'] not in ('finished', 'failed', 'timed out', 'canceled', 'not_synced')
+        return task['state'] not in ('finished', 'failed', 'error', 'timed out', 'canceled', 'not_synced')
 
     def is_multiple(self):
         return self.subtask_count() > 1
