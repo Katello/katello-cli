@@ -31,3 +31,6 @@ locale/doc/build
 
 # ctags
 tags
+
+# rope
+.ropeproject
