@@ -158,12 +158,12 @@ def get_repo(orgName, repoName, prodName=None, prodLabel=None, prodId=None, envN
     prod = get_product(orgName, prodName, prodLabel, prodId)
 
     view = None
-    viewId = None
+    resultViewId = None
     if viewName or viewLabel or viewId:
         view = get_content_view(orgName, viewLabel, viewName, viewId)
-        viewId = view["id"]
+        resultViewId = view["id"]
 
-    repos = repo_api.repos_by_env_product(env["id"], prod["id"], repoName, includeDisabled, viewId)
+    repos = repo_api.repos_by_env_product(env["id"], prod["id"], repoName, includeDisabled, resultViewId)
     if len(repos) > 0:
         #repo by id call provides more information
         return repo_api.repo(repos[0]["id"])

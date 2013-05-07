@@ -77,9 +77,9 @@ class List(ErrataAction):
         prod_name = self.get_option('product')
         prod_label = self.get_option('product_label')
         prod_id = self.get_option('product_id')
-        viewName = self.get_option('view_name')
-        viewLabel = self.get_option('view_label')
-        viewId = self.get_option('view_id')
+        view_name = self.get_option('view_name')
+        view_label = self.get_option('view_label')
+        view_id = self.get_option('view_id')
 
         self.printer.add_column('errata_id', _("ID"))
         self.printer.add_column('title', _("Title"))
@@ -88,7 +88,7 @@ class List(ErrataAction):
         if not repo_id:
             if repo_name:
                 repo = get_repo(org_name, repo_name, prod_name, prod_label, prod_id, env_name, False,
-                                viewName, viewLabel, viewId)
+                                view_name, view_label, view_id)
                 repo_id = repo["id"]
             else:
                 env = get_environment(org_name, env_name)
@@ -180,6 +180,7 @@ class Info(ErrataAction):
         opt_parser_add_org(parser, required=1)
         opt_parser_add_environment(parser, default=_("Library"))
         opt_parser_add_product(parser)
+        opt_parser_add_content_view(parser)
 
     def check_options(self, validator):
         validator.require('id')
@@ -187,19 +188,24 @@ class Info(ErrataAction):
             validator.require(('repo', 'org'))
             validator.require_at_least_one_of(('product', 'product_label', 'product_id'))
             validator.mutually_exclude('product', 'product_label', 'product_id')
+            validator.mutually_exclude('view_name', 'view_label', 'view_id')
 
     def run(self):
-        errId    = self.get_option('id')
-        repoId   = self.get_option('repo_id')
-        repoName = self.get_option('repo')
-        orgName  = self.get_option('org')
-        envName  = self.get_option('environment')
-        prodName = self.get_option('product')
+        errId     = self.get_option('id')
+        repoId    = self.get_option('repo_id')
+        repoName  = self.get_option('repo')
+        orgName   = self.get_option('org')
+        envName   = self.get_option('environment')
+        prodName  = self.get_option('product')
         prodLabel = self.get_option('product_label')
-        prodId   = self.get_option('product_id')
+        prodId    = self.get_option('product_id')
+        viewName  = self.get_option('view_name')
+        viewLabel = self.get_option('view_label')
+        viewId    = self.get_option('view_id')
 
         if not repoId:
-            repo = get_repo(orgName, repoName, prodName, prodLabel, prodId, envName)
+            repo = get_repo(orgName, repoName, prodName, prodLabel, prodId, envName,
+                            viewName, viewLabel, viewId)
             repoId = repo["id"]
 
         pack = self.api.errata(errId, repoId)
