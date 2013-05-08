@@ -33,7 +33,7 @@ def data_files():
 
 setup(
     name        = "katello-cli",
-    version     = "1.3.11",
+    version     = "1.3.12",
     description = "Command line interface for the Katello System's Management Project.",
     home_page   = "http://www.katello.org",
     license     = "GPL",
