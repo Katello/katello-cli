@@ -431,7 +431,7 @@ class AddRule(FilterAction):
         epilog.append(pformat(example))
 
         epilog.append(_("By Date Range"))
-        example_date = {"date_range":[{"start": "2013-04-15"}, {"end": "2015-04-15"}]}
+        example_date = {"date_range":{"start": "2013-04-15", "end": "2015-04-15"}}
         epilog.append(pformat(example_date))
         epilog.append(_("By Errata Type"))
         example = {"errata_type":["security", "bugfix"]}
