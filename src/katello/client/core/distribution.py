@@ -21,7 +21,7 @@ from katello.client.core.base import BaseAction, Command
 from katello.client.api.utils import get_repo
 from katello.client.lib.ui import printer
 from katello.client.cli.base import opt_parser_add_product, opt_parser_add_org, \
-    opt_parser_add_environment, opt_parser_add_environment
+    opt_parser_add_environment, opt_parser_add_environment, opt_parser_add_content_view
 from katello.client.lib.ui.printer import batch_add_columns
 
 
@@ -48,10 +48,12 @@ class List(DistributionAction):
         opt_parser_add_org(parser, required=1)
         opt_parser_add_environment(parser, default=_("Library"))
         opt_parser_add_product(parser, required=1)
+        opt_parser_add_content_view(parser)
 
     def check_options(self, validator):
         if not validator.exists('repo_id'):
             validator.require(('repo', 'org', 'product'))
+            validator.mutually_exclude('view_name', 'view_label', 'view_id')
 
     def run(self):
         repoId   = self.get_option('repo_id')
@@ -61,13 +63,17 @@ class List(DistributionAction):
         prodName = self.get_option('product')
         prodLabel = self.get_option('product_label')
         prodId   = self.get_option('product_id')
+        viewName = self.get_option('view_name')
+        viewLabel = self.get_option('view_label')
+        viewId = self.get_option('view_id')
 
         self.printer.add_column('id', _("ID"))
         self.printer.add_column('description', _("Description"))
         self.printer.add_column('files', _("Files"), multiline=True, show_with=printer.VerboseStrategy)
 
         if not repoId:
-            repo = get_repo(orgName, repoName, prodName, prodLabel, prodId, envName)
+            repo = get_repo(orgName, repoName, prodName, prodLabel, prodId, envName, False,
+                            viewName, viewLabel, viewId)
             repoId = repo["id"]
 
         self.printer.set_header(_("Distribution List For Repo %s") % repoId)
