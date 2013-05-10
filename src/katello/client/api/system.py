@@ -74,6 +74,10 @@ class SystemAPI(KatelloAPI):
         path = "/api/systems/%s/subscriptions" % system_id
         return self.server.GET(path)[1]
 
+    def subscription_status(self, system_id):
+        path = "/api/systems/%s/subscription_status" % system_id
+        return self.server.GET(path)[1]
+
     def refresh_subscriptions(self, system_id):
         path = "/api/systems/%s/refresh_subscriptions" % system_id
         return self.server.POST(path, {})[1]
