@@ -13,8 +13,6 @@ CS1_NAME="changeset_$RAND"
 RHSM_REPO="http://lzap.fedorapeople.org/fakerepos/zoo/"
 RHSM_YPROD="yum_product_$RAND"
 RHSM_ZPROD="yum_product2_$RAND"
-RHSM_DEF="yum_def_$RAND"
-RHSM_VIEW="yum_def_${RAND}_view_${RAND}"
 HOST="$(hostname)_$PLAIN_RAND"
 
 sm_present() {
@@ -42,14 +40,10 @@ if sm_present; then
     test_success "provider create" provider create --name="$RHSM_YPROV" --org="$RHSM_ORG" --url="$RHSM_REPO"
     test_success "product create" product create --provider="$RHSM_YPROV" --org="$RHSM_ORG" --name="$RHSM_YPROD" --url="$RHSM_REPO" --assumeyes
     test_success "product create" product create --provider="$RHSM_YPROV" --org="$RHSM_ORG" --name="$RHSM_ZPROD" --url="$RHSM_REPO" --assumeyes
-    test_success "definition create" definition create --name="$RHSM_DEF" --org="$RHSM_ORG"
-    test_success "definition add_product" definition add_product --name="$RHSM_DEF" --org="$RHSM_ORG" --product="$RHSM_YPROD"
-    test_success "definition add_product" definition add_product --name="$RHSM_DEF" --org="$RHSM_ORG" --product="$RHSM_ZPROD"
-    test_success "definition publish" definition publish --name="$RHSM_DEF" --org="$RHSM_ORG" --view_name="$RHSM_VIEW"
     POOLID=$(grab_pool_with_katello)
     test_success "add product to ak 1" activation_key update --add_subscription="$POOLID" --name="$RHSM_AK1" --environment="$RHSM_ENV" --org="$RHSM_ORG"
     test_success "changeset create" changeset create --org="$RHSM_ORG" --environment="$RHSM_ENV" --name="$CS1_NAME"
-    test_success "changeset add view" changeset update  --org="$RHSM_ORG" --environment="$RHSM_ENV" --name="$CS1_NAME" --add_content_view="$RHSM_VIEW"
+    test_success "changeset add product" changeset update  --org="$RHSM_ORG" --environment="$RHSM_ENV" --name="$CS1_NAME" --add_product="$RHSM_YPROD"
     check_delayed_jobs_running
     test_success "changeset promote" changeset promote --org="$RHSM_ORG" --environment="$RHSM_ENV" --name="$CS1_NAME"
 
