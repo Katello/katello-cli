@@ -15,16 +15,13 @@
 #
 
 import os
-import datetime
 
-from katello.client import constants
 from katello.client.cli.base import opt_parser_add_org, opt_parser_add_environment
 from katello.client.core import repo
 from katello.client.core.repo import ALLOWED_REPO_URL_SCHEMES
 from katello.client.core.base import BaseAction, Command
 from katello.client.api.product import ProductAPI
 from katello.client.api.repo import RepoAPI
-from katello.client.api.changeset import ChangesetAPI
 from katello.client.api.utils import get_environment, get_provider, get_product, get_sync_plan
 from katello.client.lib.async import AsyncTask, evaluate_task_status
 from katello.client.lib.ui import printer
@@ -42,7 +39,6 @@ class ProductAction(BaseAction):
         super(ProductAction, self).__init__()
         self.api = ProductAPI()
         self.repoapi = RepoAPI()
-        self.csapi = ChangesetAPI()
 
 
 class SingleProductAction(ProductAction):
@@ -249,50 +245,6 @@ class Status(SingleProductAction):
         return os.EX_OK
 
 
-# ------------------------------------------------------------------------------
-class Promote(SingleProductAction):
-
-    description = _('promote a product to an environment\n' +
-        '(creates a temporary changeset with the product and promotes it)')
-    select_by_env = True
-
-    def check_options(self, validator):
-        self.check_product_select_options(validator)
-        validator.require('environment')
-
-    def run(self):
-        orgName     = self.get_option('org')
-        prodName    = self.get_option('name')
-        prodLabel   = self.get_option('label')
-        prodId      = self.get_option('id')
-        envName     = self.get_option('environment')
-
-        env = get_environment(orgName, envName)
-        prod = get_product(orgName, prodName, prodLabel, prodId)
-
-
-        if not self.repoapi.repos_by_product(orgName, prod['id']):
-            print _("Product [ %(prod_name)s ] has no repository") % {'prod_name':prod['name']}
-            return os.EX_DATAERR
-
-        cset = self.csapi.create(orgName, env["id"], self.create_cs_name(), constants.PROMOTION)
-
-        self.csapi.add_content(cset["id"], "products", {'product_id': prod['id']})
-        task = self.csapi.apply(cset["id"])
-        task = AsyncTask(task)
-
-        run_spinner_in_bg(wait_for_async_task, [task], message=_("Promoting the product, please wait... "))
-
-        return evaluate_task_status(task,
-            failed = _("Product [ %s ] promotion failed") % prod["name"],
-            ok =     _("Product [ %(prod)s ] promoted to environment [ %(env)s ]") %
-                {'prod':prod["name"], 'env':envName}
-        )
-
-    @classmethod
-    def create_cs_name(cls):
-        curTime = datetime.datetime.now()
-        return "product_promotion_"+str(curTime)
 
 # ------------------------------------------------------------------------------
 class Create(ProductAction):
@@ -360,7 +312,7 @@ class Create(ProductAction):
             repourls = self.discoverRepos.discover_repositories(prov['id'], url)
             self.printer.set_header(_("Repository Urls discovered @ [%s]" % url))
             selectedurls = self.discoverRepos.select_repositories(repourls, assumeyes)
-            self.discoverRepos.create_repositories(orgName, prod["id"], prod["name"], prod["label"], 
+            self.discoverRepos.create_repositories(orgName, prod["id"], prod["name"], prod["label"],
                     selectedurls, unprotected)
 
         return os.EX_OK
@@ -377,7 +329,7 @@ class ListRepositorySets(SingleProductAction):
         prodId      = self.get_option('id')
         prod = get_product(orgName, prodName, prodLabel, prodId)
         sets = self.api.repository_sets(orgName, prod["id"])
-        sets = sorted(sets, key=lambda k: k['name']) 
+        sets = sorted(sets, key=lambda k: k['name'])
 
         batch_add_columns(self.printer, {'id': _("ID")}, {'name': _("Name")}, \
             {'katello_enabled': _("Enabled?")})
@@ -386,7 +338,7 @@ class ListRepositorySets(SingleProductAction):
         self.printer.print_items(sets)
 
         return os.EX_OK
-        
+
 class EnableRepositorySet(SingleProductAction):
     description = _('Enable a repository set for a Red Hat product')
     def setup_parser(self, parser):
@@ -404,13 +356,13 @@ class EnableRepositorySet(SingleProductAction):
         prodId      = self.get_option('id')
         prod = get_product(orgName, prodName, prodLabel, prodId)
         set_name      = self.get_option('set_name')
-      
+
         task = AsyncTask(self.api.enable_repository_set(orgName, prod['id'], set_name))
         task = run_spinner_in_bg(wait_for_async_task, [task],
                 message=_("Enabling Repository Set..."))
         task = AsyncTask(task)
         return evaluate_task_status(task,
-            failed = _("Repository enable [ %(set_name)s ] failed.") % 
+            failed = _("Repository enable [ %(set_name)s ] failed.") %
                         {'set_name':set_name},
             ok = _("Repository Set [ %(set_name)s ] enabled.") % {'set_name':set_name}
         )
@@ -438,7 +390,7 @@ class DisableRepositorySet(SingleProductAction):
                 message=_("Disabling Repository Set..."))
         task = AsyncTask(task)
         return evaluate_task_status(task,
-            failed = _("Repository disable [ %(set_name)s ] failed.") % 
+            failed = _("Repository disable [ %(set_name)s ] failed.") %
                         {'set_name':set_name},
             ok = _("Repository Set [ %(set_name)s ] disabled.") % {'set_name':set_name}
         )

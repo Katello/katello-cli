@@ -22,8 +22,7 @@ from katello.client.api.changeset import ChangesetAPI
 from katello.client.cli.base import opt_parser_add_org, opt_parser_add_environment
 from katello.client.core.base import BaseAction, Command
 
-from katello.client.api.utils import get_environment, get_changeset, get_repo, get_product, \
-    get_content_view
+from katello.client.api.utils import get_environment, get_changeset, get_content_view
 from katello.client.lib.async import AsyncTask, evaluate_task_status
 from katello.client.lib.ui.progress import run_spinner_in_bg, wait_for_async_task
 from katello.client.lib.utils.data import test_record
@@ -102,12 +101,7 @@ class Info(ChangesetAction):
 
         cset['environment_name'] = envName
 
-        cset["errata"] = self.format_item_list("display_name", cset["errata"])
-        cset["products"] = self.format_item_list("name", cset["products"])
-        cset["packages"] = self.format_item_list("display_name", cset["packages"])
-        cset["repositories"] = self.format_item_list("name", cset["repos"])
         cset["content_views"] = self.format_item_list("name", cset["content_views"])
-        cset["distributions"] = self.format_item_list("distribution_id", cset["distributions"])
         if displayDeps:
             cset["dependencies"] = self.get_dependencies(cset["id"])
         batch_add_columns(self.printer, {'id': _("ID")}, {'name': _("Name")}, {'action_type': _("Action Type")})
@@ -115,9 +109,7 @@ class Info(ChangesetAction):
         self.printer.add_column('updated_at', _("Last Updated"), formatter=format_date)
         batch_add_columns(self.printer, {'state': _("State")}, \
             {'environment_id': _("Environment ID")}, {'environment_name': _("Environment Name")})
-        batch_add_columns(self.printer, {'errata': _("Errata")}, {'products': _("Products")}, \
-            {'packages': _("Packages")}, {'repositories': _("Repositories")}, \
-            {'distributions': _("Distributions")}, {'content_views': _("Content Views")}, \
+        batch_add_columns(self.printer, {'content_views': _("Content Views")},
             multiline=True, show_with=printer.VerboseStrategy)
         if displayDeps:
             self.printer.add_column('dependencies', _("Dependencies"), \
@@ -183,19 +175,9 @@ class UpdateContent(ChangesetAction):
         @staticmethod
         def build_patch(action, itemBuilder, items):
             patch = {}
-            patch['packages'] = [itemBuilder.package(i) for i in items[action + "_package"]]
-            patch['errata'] = [itemBuilder.erratum(i) for i in items[action + "_erratum"]]
-            patch['repositories'] = [itemBuilder.repo(i) for i in items[action + "_repo"]]
-
-            patch['products'] = [itemBuilder.product(i) for i in (
-                items[action + "_product"] + items[action + "_product_label"] +
-                items[action + "_product_id"])]
-
             patch['content_views'] = [itemBuilder.content_view(i) for i in (
                 items[action + "_content_view"] + items[action + "_content_view_label"] +
                 items[action + "_content_view_id"])]
-
-            patch['distributions'] = [itemBuilder.distro(i) for i in items[action + "_distribution"]]
             return patch
 
     class PatchItemBuilder(object):
@@ -209,152 +191,36 @@ class UpdateContent(ChangesetAction):
             else:
                 self.env_name = get_environment(org_name, env_name)['prior']
 
-        @classmethod
-        def product_options(cls, options):
-            product = {'name': None, 'label': None, 'id': None}
-
-            if 'product' in options:
-                product['name'] = options['product']
-            elif 'product_label' in options:
-                product['label'] = options['product_label']
-            elif 'product_id' in options:
-                product['id'] = options['product_id']
-
-            return product
-
-        def product_id(self, options):
-            prod_opts = self.product_options(options)
-
-            # if the product name/label/id are all none...
-            if (all(opt is None for opt in prod_opts.itervalues())):
-                prod_opts['name'] = options['name']
-
-            prod = get_product(self.org_name, prod_opts['name'], prod_opts['label'], prod_opts['id'])
-
-            return prod['id']
-
-        def repo_id(self, options):
-            prod_opts = self.product_options(options)
-            repo = get_repo(self.org_name, options['name'], prod_opts['name'],
-                prod_opts['label'], prod_opts['id'], self.env_name)
-            return repo['id']
-
         def content_view_id(self, options):
             view = get_content_view(self.org_name, **options)
             return view['id']
 
     class AddPatchItemBuilder(PatchItemBuilder):
-        def package(self, options):
-            return {
-                'name': options['name'],
-                'product_id': self.product_id(options)
-            }
-
-        def product(self, options):
-            return {
-                'product_id': self.product_id(options)
-            }
-
-        def erratum(self, options):
-            return {
-                'erratum_id': options['name'],
-                'product_id': self.product_id(options)
-            }
-
-        def repo(self, options):
-            return {
-                'repository_id': self.repo_id(options),
-                'product_id': self.product_id(options)
-            }
-
         def content_view(self, options):
             return {
                 'content_view_id': self.content_view_id(options)
             }
 
-        def distro(self, options):
-            return {
-                'distribution_id': options['name'],
-                'product_id': self.product_id(options)
-            }
-
 
     class RemovePatchItemBuilder(PatchItemBuilder):
-        def package(self, options):
-            return {
-                'content_id': options['name'],
-                'product_id': self.product_id(options)
-            }
-
-        def product(self, options):
-            return {
-                'content_id': self.product_id(options)
-            }
-
-        def erratum(self, options):
-            return {
-                'content_id': options['name'],
-                'product_id': self.product_id(options)
-            }
-
-        def repo(self, options):
-            return {
-                'content_id': self.repo_id(options),
-                'product_id': self.product_id(options)
-            }
-
         def content_view(self, options):
             return {
                 'content_id': self.content_view_id(options)
             }
 
-        def distro(self, options):
-            return {
-                'content_id': options['name'],
-                'product_id': self.product_id(options)
-            }
 
-
-    productDependentContent = ['package', 'erratum', 'repo', 'distribution']
-    productIndependentContent = ['product', 'product_label', 'product_id',
-            'content_view', 'content_view_label', 'content_view_id']
+    content_types = ['content_view', 'content_view_id', 'content_view_label']
 
     description = _('updates content of a changeset')
 
     def __init__(self):
-        self.current_product = None
-        self.current_product_option = None
         super(UpdateContent, self).__init__()
         self.items = {}
 
 
     # pylint: disable=W0613
-    def _store_from_product(self, option, opt_str, value, parser):
-        self.current_product = u_str(value)
-        self.current_product_option = option.dest
-        setattr(parser.values, option.dest, value)
-
-    def _store_item_with_product(self, option, opt_str, value, parser):
-        if (parser.values.from_product == None) and \
-           (parser.values.from_product_label == None) and \
-           (parser.values.from_product_id == None):
-            raise OptionValueError(_("%s must be preceded by %s, %s or %s") %
-                  (option, "--from_product", "--from_product_label", "--from_product_id"))
-
-        if self.current_product_option == 'product_label':
-            self.items[option.dest].append({"name": u_str(value), "product_label": self.current_product})
-        elif self.current_product_option == 'product_id':
-            self.items[option.dest].append({"name": u_str(value), "product_id": self.current_product})
-        else:
-            self.items[option.dest].append({"name": u_str(value), "product": self.current_product})
-
-
     def _store_item(self, option, opt_str, value, parser):
-        if option.dest == 'add_product_label' or option.dest == 'remove_product_label':
-            self.items[option.dest].append({"product_label": u_str(value)})
-        elif option.dest == 'add_product_id' or option.dest == 'remove_product_id':
-            self.items[option.dest].append({"product_id": u_str(value)})
-        elif option.dest == "add_content_view" or option.dest == "remove_content_view":
+        if option.dest == "add_content_view" or option.dest == "remove_content_view":
             self.items[option.dest].append({"view_name": u_str(value)})
         elif option.dest == "add_content_view_label" or option.dest == "remove_content_view_label":
             self.items[option.dest].append({"view_label": u_str(value)})
@@ -374,27 +240,6 @@ class UpdateContent(ChangesetAction):
                                help=_("changeset description"))
         parser.add_option('--new_name', dest='new_name',
                                help=_("new changeset name"))
-
-        parser.add_option('--add_product', dest='add_product', type="string",
-                               action="callback", callback=self._store_item,
-                               help=_("product to add to the changeset, by name"))
-        parser.add_option('--add_product_label', dest='add_product_label', type="string",
-                               action="callback", callback=self._store_item,
-                               help=_("product to add to the changeset, by label"))
-        parser.add_option('--add_product_id', dest='add_product_id', type="string",
-                               action="callback", callback=self._store_item,
-                               help=_("product to add to the changeset, by id"))
-
-
-        parser.add_option('--remove_product', dest='remove_product', type="string",
-                               action="callback", callback=self._store_item,
-                               help=_("product to remove from the changeset, by name"))
-        parser.add_option('--remove_product_label', dest='remove_product_label', type="string",
-                               action="callback", callback=self._store_item,
-                               help=_("product to remove from the changeset, by label"))
-        parser.add_option('--remove_product_id', dest='remove_product_id', type="string",
-                               action="callback", callback=self._store_item,
-                               help=_("product to remove from the changeset, by id"))
 
         parser.add_option('--add_content_view', dest='add_content_view', type="string",
                                action="callback", callback=self._store_item,
@@ -416,36 +261,16 @@ class UpdateContent(ChangesetAction):
                                action="callback", callback=self._store_item,
                                help=_("id of a content view to be removed from the changeset"))
 
-        parser.add_option('--from_product', dest='from_product',
-                               action="callback", callback=self._store_from_product, type="string",
-                               help=_("determines product from which the packages/errata/repositories are picked"))
-        parser.add_option('--from_product_label', dest='from_product_label',
-                               action="callback", callback=self._store_from_product, type="string",
-                               help=_("determines product from which the packages/errata/repositories are picked"))
-        parser.add_option('--from_product_id', dest='from_product_id',
-                               action="callback", callback=self._store_from_product, type="string",
-                               help=_("determines product from which the packages/errata/repositories are picked"))
-
-        for ct in self.productDependentContent:
-            parser.add_option('--add_' + ct, dest='add_' + ct,
-                                   action="callback", callback=self._store_item_with_product, type="string",
-                                   help=_(ct + " to add to the changeset"))
-            parser.add_option('--remove_' + ct, dest='remove_' + ct,
-                                   action="callback", callback=self._store_item_with_product, type="string",
-                                   help=_(ct + " to remove from the changeset"))
         self.reset_items()
 
     def reset_items(self):
         self.items = {}
-        for ct in self.productDependentContent + self.productIndependentContent:
+        for ct in self.content_types:
             self.items['add_' + ct] = []
-            self.items['remove_' + ct] = []
+            self.items['remove_'+ct] = []
 
     def check_options(self, validator):
         validator.require(('name', 'org', 'environment'))
-        validator.mutually_exclude('add_product', 'add_product_label', 'add_product_id')
-        validator.mutually_exclude('remove_product', 'remove_product_label', 'remove_product_id')
-        validator.mutually_exclude('from_product', 'from_product_label', 'from_product_id')
         validator.mutually_exclude('add_content_view', 'add_content_view_label',
                                    'add_content_view_id')
         validator.mutually_exclude('remove_content_view', 'remove_content_view_label',
