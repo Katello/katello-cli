@@ -397,6 +397,7 @@ class AddRule(FilterAction):
         cvd_filter = get_filter(org_name, definition["id"], filter_name, filter_id)
 
         self.api.create_rule(cvd_filter["id"], definition["id"], org_name, rule, content, inclusion)
+        print _("Successfully created rule [ %s ]") % rule 
         return os.EX_OK
 
     @classmethod
@@ -478,6 +479,7 @@ class RemoveRule(FilterAction):
         cvd_filter = get_filter(org_name, definition["id"], filter_name, filter_id)
         self.api.remove_rule(cvd_filter["id"], definition["id"], org_name, rule)
 
+        print _("Successfully removed rule [ %s ]") % rule
         return os.EX_OK
 
 class Filter(Command):
