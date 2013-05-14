@@ -723,15 +723,13 @@ class Update(SystemAction):
         parser.add_option('--servicelevel', dest='sla',
                        help=_("service level agreement"))
         opt_parser_add_content_view(parser)
-        parser.add_option('--remove_content_view', dest='remove_view',
-                          action="store_true", help=_("unset system's content view"))
 
     def check_options(self, validator):
         validator.require('org')
         validator.require_at_least_one_of(('name', 'uuid'))
         validator.mutually_exclude('name', 'uuid')
         validator.mutually_exclude('environment', 'uuid')
-        validator.mutually_exclude(('view_name', 'view_label', 'view_id', 'remove_view'))
+        validator.mutually_exclude(('view_name', 'view_label', 'view_id'))
 
     def run(self):
         org_name = self.get_option('org')
@@ -747,7 +745,6 @@ class Update(SystemAction):
         view_name = self.get_option("view_name")
         view_label = self.get_option("view_label")
         view_id = self.get_option("view_id")
-        remove_view = self.get_option("remove_view")
 
         system = get_system(org_name, sys_name, env_name, sys_uuid)
         new_environment = get_environment(org_name, new_environment_name)
@@ -767,9 +764,7 @@ class Update(SystemAction):
             new_environment = get_environment(org_name, new_environment_name)
             updates['environment_id'] = new_environment['id']
 
-        if remove_view:
-            updates["content_view_id"] = False
-        elif view_label or view_name or view_id:
+        if view_label or view_name or view_id:
             updates["content_view_id"] = get_content_view(org_name, view_label,
                                                           view_name, view_id)["id"]
 
