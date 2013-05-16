@@ -370,6 +370,9 @@ class ListRepositorySets(SingleProductAction):
     def setup_parser(self, parser):
         self.set_product_select_options(parser, False)
 
+    def check_options(self, validator):
+        self.check_product_select_options(validator)
+
     def run(self):
         orgName     = self.get_option('org')
         prodName    = self.get_option('name')
@@ -395,6 +398,7 @@ class EnableRepositorySet(SingleProductAction):
                            help=_("name of the repository set to enable"))
 
     def check_options(self, validator):
+        self.check_product_select_options(validator)
         validator.require(('org', 'set_name'))
 
     def run(self):
@@ -423,6 +427,7 @@ class DisableRepositorySet(SingleProductAction):
                            help=_("name of the repository set to disable"))
 
     def check_options(self, validator):
+        self.check_product_select_options(validator)
         validator.require(('org', 'set_name'))
 
     def run(self):
