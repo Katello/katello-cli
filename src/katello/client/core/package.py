@@ -48,7 +48,7 @@ class Info(PackageAction):
         parser.add_option('--repo', dest='repo',
                       help=_("repository name (required)"))
         opt_parser_add_org(parser, required=1)
-        opt_parser_add_environment(parser, default=_("Library"))
+        opt_parser_add_environment(parser, default="Library")
         opt_parser_add_product(parser)
         opt_parser_add_content_view(parser)
 
@@ -103,7 +103,7 @@ class List(PackageAction):
         parser.add_option('--repo', dest='repo',
                       help=_("repository name (required)"))
         opt_parser_add_org(parser, required=1)
-        opt_parser_add_environment(parser, default=_("Library"))
+        opt_parser_add_environment(parser, default="Library")
         opt_parser_add_product(parser)
         opt_parser_add_content_view(parser)
 

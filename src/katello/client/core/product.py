@@ -63,7 +63,7 @@ class SingleProductAction(ProductAction):
         parser.add_option('--id', dest='id', help=_("product id (require name, label or id)"))
 
         if select_by_env:
-            opt_parser_add_environment(parser, default=_("Library"))
+            opt_parser_add_environment(parser, default="Library")
 
     @classmethod
     def check_product_select_options(cls, validator):
@@ -127,7 +127,7 @@ class List(ProductAction):
 
     def setup_parser(self, parser):
         opt_parser_add_org(parser, required=1)
-        opt_parser_add_environment(parser, default=_("Library"))
+        opt_parser_add_environment(parser, default="Library")
         parser.add_option('--provider', dest='prov',
                        help=_("provider name, lists provider's product in the Library"))
         parser.add_option('--all', dest='all', action='store_true',
