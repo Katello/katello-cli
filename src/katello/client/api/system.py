@@ -24,8 +24,9 @@ class SystemAPI(KatelloAPI):
     """
     Connection class to access environment calls
     """
+    # pylint: disable=R0913
     def register(self, name, org, environment_id, activation_keys, cp_type,
-                 release=None, sla=None, facts=None, view_id=None):
+                 release=None, sla=None, facts=None, view_id=None, installed_products=None):
         if environment_id is not None:
             path = "/api/environments/%s/systems" % environment_id
         else:
@@ -45,6 +46,8 @@ class SystemAPI(KatelloAPI):
             sysdata["releaseVer"] = release
         if view_id:
             sysdata["content_view_id"] = view_id
+        if installed_products:
+            sysdata["installedProducts"] = installed_products
 
         return self.server.POST(path, sysdata)[1]
 
