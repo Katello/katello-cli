@@ -235,6 +235,16 @@ class ShowSubscriptions(OrganizationAction):
 
         updated_pool_info = [self.displayable_pool(pool) for pool in pools]
 
+        yank = ['cores', 'sockets', 'ram']
+        prints = {'cores': _("Cores"), 'sockets': _("Sockets"), 'ram': _("RAM")}
+        for sub in updated_pool_info:
+            limits = []
+            for attr in sub['productAttributes']:
+                if attr['name'] in yank:
+                    limits.append("%(name)s: %(value)s" %
+                        {'name': prints[attr['name']], 'value': attr['value']})
+            sub['limits'] = "[ %s ]" % ", ".join(limits)
+
         # by default use verbose mode
         if not self.has_option('grep'):
             self.printer.set_strategy(VerboseStrategy())
@@ -244,6 +254,7 @@ class ShowSubscriptions(OrganizationAction):
         self.printer.add_column('contractNumber', _("Contract Number"), show_with=printer.VerboseStrategy)
         self.printer.add_column('sla', _("SLA"), show_with=printer.VerboseStrategy)
         self.printer.add_column('id', _("ID"))
+        self.printer.add_column('limits', _("Limits"), show_with=printer.VerboseStrategy, multiline=True)
         self.printer.add_column('startDate', _("Start Date"), show_with=printer.VerboseStrategy)
         self.printer.add_column('endDate', _("End Date"), show_with=printer.VerboseStrategy)
         self.printer.set_header(_("Organization's Subscriptions"))
