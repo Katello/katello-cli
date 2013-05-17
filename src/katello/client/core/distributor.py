@@ -41,7 +41,7 @@ class DistributorAction(BaseAction):
 
     def setup_parser(self, parser):
         opt_parser_add_org(parser, required=1)
-        opt_parser_add_environment(parser)
+        opt_parser_add_environment(parser, default='Library')
 
 # distributor actions ------------------------------------------------------------
 

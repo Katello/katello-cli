@@ -39,7 +39,7 @@ class List(ActivationKeyAction):
 
     def setup_parser(self, parser):
         opt_parser_add_org(parser, required=1)
-        opt_parser_add_environment(parser, default=_("Library"))
+        opt_parser_add_environment(parser, default="Library")
 
     def check_options(self, validator):
         validator.require('org')

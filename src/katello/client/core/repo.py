@@ -69,7 +69,7 @@ class SingleRepoAction(RepoAction):
         opt_parser_add_org(parser)
         opt_parser_add_product(parser)
         if select_by_env:
-            opt_parser_add_environment(parser, default=_("Library"))
+            opt_parser_add_environment(parser, default="Library")
 
     @classmethod
     def check_options(cls, validator):
@@ -417,7 +417,7 @@ class List(RepoAction):
 
     def setup_parser(self, parser):
         opt_parser_add_org(parser, required=1)
-        opt_parser_add_environment(parser, default=_("Library"))
+        opt_parser_add_environment(parser, default="Library")
         opt_parser_add_product(parser)
         parser.add_option('--include_disabled', action="store_true", dest='disabled',
             help=_("list also disabled repositories"))
