@@ -75,6 +75,7 @@ while [ $# -gt 0 ]; do
             printf " --rand-prefix   prefixes random hash with given value\n"
             printf " -t, --termfirst terminate on the first error\n"
             printf " --termn [N]     terminate on the n-th error\n"
+            printf " --pause         pause on error\n"
             printf " --services      url or ip of a machine with services\n"
             printf "\n"
             printf "Available tests:\n"
@@ -114,6 +115,9 @@ while [ $# -gt 0 ]; do
         "--termn")
             shift
             TERMINATE=$1
+            ;;
+        "--pause")
+            PAUSE_ON_ERROR=true
             ;;
         "-s"|"--shell")
             SHELL_MODE=1
@@ -260,6 +264,11 @@ function test_cmd() {
         fi
         let failed_cnt+=1
         let "TERMINATE=$TERMINATE - 1"
+        if [ $PAUSE_ON_ERROR ]; then
+            echo
+            echo "press ENTER to continue"
+            read
+        fi
     else
         if [ $PRINT_ALL -eq 1 ]; then
             printf "%s\n\n" "$result"
