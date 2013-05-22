@@ -9,7 +9,7 @@ fi
 export PYTHONPATH=$script_dir/../../cli/src
 export TESTDIR=$script_dir
 
-. $script_dir/helpers
+source $script_dir/helpers.sh
 
 # fake beaker environment and load it if present
 function rlPhaseStartTest() {
@@ -58,6 +58,7 @@ NO_CLEANUP=0
 RUN_DISABLED=0
 RAND_PREFIX=""
 TERMINATE=9999
+SERVICES_HOST=localhost
 while [ $# -gt 0 ]; do
     case "$1" in
         "-h"|"--help")
@@ -74,6 +75,7 @@ while [ $# -gt 0 ]; do
             printf " --rand-prefix   prefixes random hash with given value\n"
             printf " -t, --termfirst terminate on the first error\n"
             printf " --termn [N]     terminate on the n-th error\n"
+            printf " --services      url or ip of a machine with services\n"
             printf "\n"
             printf "Available tests:\n"
             printf " all\n"
@@ -119,6 +121,10 @@ while [ $# -gt 0 ]; do
         "--logfile")
             shift
             LOGFILE=$1
+            ;;
+        "--services")
+            shift
+            SERVICES_HOST=$1
             ;;
         "all")
             TEST_ALL=1

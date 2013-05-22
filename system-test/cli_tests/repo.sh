@@ -10,7 +10,7 @@ REPO_ID=$(get_repo_id)
 test_success "repo status" repo status --id="$REPO_ID"
 test_success "repo synchronize" repo synchronize --id="$REPO_ID"
 
-PACKAGE_URL=https://localhost/pulp/repos/$TEST_ORT/$TEST_ORG/Library/$FEWUPS_PRODUCT/$REPO_NAME/lion-0.3-0.8.noarch.rpm
+PACKAGE_URL="https://$SERVICES_HOST/pulp/repos/$TEST_ORT/$TEST_ORG/Library/$FEWUPS_PRODUCT/$REPO_NAME/lion-0.3-0.8.noarch.rpm"
 REPO_STATUS_CODE=`curl "$PACKAGE_URL" -k --write-out '%{http_code}' -s -o /dev/null`
 if [ "$REPO_STATUS_CODE" != '403' ]; then
   msg_status "repo secured" "${txtred}FAILED${txtrst}"
