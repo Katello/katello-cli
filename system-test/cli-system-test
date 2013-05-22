@@ -9,7 +9,7 @@ fi
 export PYTHONPATH=$script_dir/../../cli/src
 export TESTDIR=$script_dir
 
-. $script_dir/helpers
+source $script_dir/helpers.sh
 
 # fake beaker environment and load it if present
 function rlPhaseStartTest() {
@@ -58,6 +58,7 @@ NO_CLEANUP=0
 RUN_DISABLED=0
 RAND_PREFIX=""
 TERMINATE=9999
+SERVICES_HOST=localhost
 while [ $# -gt 0 ]; do
     case "$1" in
         "-h"|"--help")
@@ -74,6 +75,8 @@ while [ $# -gt 0 ]; do
             printf " --rand-prefix   prefixes random hash with given value\n"
             printf " -t, --termfirst terminate on the first error\n"
             printf " --termn [N]     terminate on the n-th error\n"
+            printf " --pause         pause on error\n"
+            printf " --services      url or ip of a machine with services\n"
             printf "\n"
             printf "Available tests:\n"
             printf " all\n"
@@ -113,12 +116,19 @@ while [ $# -gt 0 ]; do
             shift
             TERMINATE=$1
             ;;
+        "--pause")
+            PAUSE_ON_ERROR=true
+            ;;
         "-s"|"--shell")
             SHELL_MODE=1
             ;;
         "--logfile")
             shift
             LOGFILE=$1
+            ;;
+        "--services")
+            shift
+            SERVICES_HOST=$1
             ;;
         "all")
             TEST_ALL=1
@@ -247,13 +257,18 @@ function test_cmd() {
             printf "%s\n\n" "$result"
         else
             msg_status "$test_name" "${txtred}FAILED${txtrst}"
-            printf "%s\n" "$*"
-            printf "%s\n" "$result"
+            printf "COMMAND: %s\n" "$*"
+            printf "OUT:\n%s<EOF>\n" "$result"
             # beaker
             rlFail
         fi
         let failed_cnt+=1
         let "TERMINATE=$TERMINATE - 1"
+        if [ $PAUSE_ON_ERROR ]; then
+            echo
+            echo "press ENTER to continue"
+            read
+        fi
     else
         if [ $PRINT_ALL -eq 1 ]; then
             printf "%s\n\n" "$result"

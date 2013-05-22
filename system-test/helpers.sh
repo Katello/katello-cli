@@ -2,8 +2,8 @@
 # Helpers for common steps in cli system tests
 
 KATELLO_URL=${KATELLO_URL:-"http://localhost:3000/katello/api/"}
-PULP_URL=${PULP_URL:-"https://localhost/pulp/api/"}
-CP_URL=${CP_URL:-"https://localhost:8443/candlepin/"}
+PULP_URL=${PULP_URL:-"https://$SERVICES_HOST/pulp/api/"}
+CP_URL=${CP_URL:-"https://$SERVICES_HOST:8443/candlepin/"}
 
 function nospace(){
   echo "$@" | sed 's/ /_/g'
@@ -38,7 +38,7 @@ function valid_id() {
 
 function jobs_running() {
     jobs_rake=`ps aux | grep -v grep | grep "rake jobs:work" > /dev/null; echo $?`
-    jobs_service=`service katello-jobs status > /dev/null ; echo $?`
+    jobs_service=`service katello-jobs status &> /dev/null; echo $?`
 
     if [ "$jobs_rake" == "0" ] || [ "$jobs_service" == "0" ]; then
         return 0
