@@ -356,12 +356,12 @@ class RemoveDefaultInfo(OrganizationAction):
 
 # ------------------------------------------------------------------------------
 
-class ApplyDefaultInfo(OrganizationAction):
+class SyncDefaultInfo(OrganizationAction):
 
-    description = _("apply default custom info keynames to all existing entities")
+    description = _("sync default custom info keynames to all existing entities")
 
     def __init__(self):
-        super(ApplyDefaultInfo, self).__init__()
+        super(SyncDefaultInfo, self).__init__()
         self.default_info_api = OrganizationDefaultInfoAPI()
 
     def setup_parser(self, parser):
@@ -380,17 +380,17 @@ class ApplyDefaultInfo(OrganizationAction):
 
         if async:
             task = AsyncTask(self.default_info_api.apply(org_name, informable_type, async)['task'])
-            run_spinner_in_bg(wait_for_async_task, [task], message=_("Applying default info, please wait... "))
+            run_spinner_in_bg(wait_for_async_task, [task], message=_("Syncing default info, please wait... "))
 
             return evaluate_task_status(task,
-                failed   = _("Organization [ %s ] failed to apply default info") % org_name,
-                canceled = _("Organization [ %s ] canceled applying default info") % org_name,
-                ok       = _("Organization [ %s ] completed applying default info") % org_name
+                failed   = _("Organization [ %s ] failed to sync default info") % org_name,
+                canceled = _("Organization [ %s ] canceled syncing default info") % org_name,
+                ok       = _("Organization [ %s ] completed syncing default info") % org_name
             )
         else:
             self.default_info_api.apply(org_name, informable_type, async)
 
-            print _("Organization [ %s ] completed applying default info") % org_name
+            print _("Organization [ %s ] completed syncing default info") % org_name
             return os.EX_OK
 
 # organization command ------------------------------------------------------------
