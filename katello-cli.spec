@@ -31,6 +31,12 @@ BuildRequires: translate-toolkit
 Obsoletes:     katello-cli-headpin < 1.0.1-1
 Provides:      katello-cli-headpin = 1.0.1-1
 
+# unit tests
+BuildRequires: python-kerberos
+BuildRequires: m2crypto
+BuildRequires: python-nose
+BuildRequires: python-mock
+
 %description
 Provides a client package for managing application life-cycle for
 Linux systems with Katello
@@ -139,11 +145,16 @@ popd
 chmod 755 %{buildroot}%{python_sitelib}/%{base_name}/client/main.py
 
 mkdir -p %{buildroot}%{homedir}/tests/%{name}/unit-tests
-sed -i -e 's|main_path = .*|main_path = "%{python_sitelib}/%{base_name}"|g' test/katello/__init__.py
 cp -ap test/katello %{buildroot}%{homedir}/tests/%{name}/unit-tests
+sed -i -e 's|main_path = .*|main_path = "%{python_sitelib}/%{base_name}"|g' %{buildroot}%{homedir}/tests/%{name}/unit-tests/katello/__init__.py
 
 pushd %{buildroot}%{_bindir}
 ln -svf %{_bindir}/%{base_name} headpin
+popd
+
+%check
+pushd test/katello
+nosetests
 popd
 
 %files -f %{name}.lang
