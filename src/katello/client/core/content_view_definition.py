@@ -387,9 +387,9 @@ class AddRemoveContentView(ContentViewDefinitionAction):
     @property
     def description(self):
         if self.addition:
-            return _('add a content view to a content view definition')
+            return _('add a component content view to a composite definition')
         else:
-            return _('remove a content view from a content view definition')
+            return _('remove a component content view from a composite definition')
 
 
     def __init__(self, addition):
