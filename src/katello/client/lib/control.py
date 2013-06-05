@@ -73,7 +73,7 @@ def parse_tokens(tokenstring):
 
     tokens = []
     try:
-        pattern = r'--?\w+|=?"[^"]*"|=?\'[^\']*\'|=?[^\s]+'
+        pattern = r'-[\w\-]+|=?"[^"]*"|=?\'[^\']*\'|=?[^\s]+'
 
         for tok in (re.findall(pattern, tokenstring)):
 
