@@ -20,10 +20,9 @@ from katello.client.api.content_view_definition import ContentViewDefinitionAPI
 from katello.client.cli.base import opt_parser_add_org, opt_parser_add_content_view
 from katello.client.core.base import BaseAction, Command
 from katello.client.api.utils import get_content_view, get_cv_definition, \
-    get_product, get_repo
+    get_composite_cv_definition, get_product, get_repo
 from katello.client.lib.async import AsyncTask, evaluate_task_status
 from katello.client.lib.ui.progress import run_spinner_in_bg, wait_for_async_task
-
 
 # base content_view_definition action ----------------------------------------
 
@@ -417,7 +416,7 @@ class AddRemoveContentView(ContentViewDefinitionAction):
         content_view_name  = self.get_option('view_name')
         content_view_id    = self.get_option('view_id')
 
-        cvd = get_cv_definition(org_name, def_label, def_name, def_id)
+        cvd = get_composite_cv_definition(org_name, def_label, def_name, def_id)
         content_view = get_content_view(org_name, content_view_label, content_view_name,
                                         content_view_id)
 
@@ -432,10 +431,13 @@ class AddRemoveContentView(ContentViewDefinitionAction):
             message = _("Added content view [ %(view)s ] to definition [ %(def)s ]" % \
                         ({"def": cvd["name"], "view": content_view["name"]}))
         else:
-            content_views.remove(content_view["id"])
-            message = _("Removed content view [ %(view)s ] to content view [ %(def)s ]" % \
+            if content_views.count(content_view["id"]) > 0:
+                content_views.remove(content_view["id"])
+                message = _("Removed content view [ %(view)s ] from definition [ %(def)s ]" % \
                         ({"def": cvd["name"], "view": content_view["name"]}))
-
+            else:
+                message = _("Content view [ %(view)s ] is not a component of definition [ %(def)s ]" % \
+                        ({"def": cvd["name"], "view": content_view["name"]}))
         self.api.update_content_views(cvd['id'], content_views)
         print message
 

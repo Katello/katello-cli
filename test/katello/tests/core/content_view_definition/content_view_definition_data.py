@@ -76,6 +76,19 @@ DEFS =  [
             "organization_id": 1
             },
         ]
+
+COMPOSITE_DEFS = [
+        {
+            "created_at": "2012-01-20T12:00:44Z",
+            "updated_at": "2012-01-20T12:00:44Z",
+            "composite": True,
+            "id": 1,
+            "description": "Database",
+            "label": "Database",
+            "name": "Database",
+            "organization_id": 1
+            }
+        ]
 FILTERS = [
           {
           'content_view_definition_id': 1,
