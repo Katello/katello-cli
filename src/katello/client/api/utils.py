@@ -115,6 +115,11 @@ def get_content_view(org_name, view_label=None, view_name=None, view_id=None):
             ((view_label or view_name or view_id), org_name))
     return views[0]
 
+def get_composite_cv_definition(org_name, def_label=None, def_name=None, def_id=None):
+    cvd = get_cv_definition(org_name, def_label, def_name, def_id)
+    if not cvd['composite']:
+        raise  ApiDataError(_("%(def)s is not a composite definition") % {'def':cvd['name']})
+    return cvd
 
 def get_cv_definition(org_name, def_label=None, def_name=None, def_id=None):
     cvd_api = ContentViewDefinitionAPI()
