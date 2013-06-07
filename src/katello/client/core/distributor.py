@@ -161,7 +161,7 @@ class Create(DistributorAction):
                                    'distributor')
 
         test_record(distributor,
-            _("Successfully createed distributor [ %s ]") % name,
+            _("Successfully created distributor [ %s ]") % name,
             _("Could not create distributor [ %s ]") % name
         )
 
