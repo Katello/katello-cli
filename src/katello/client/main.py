@@ -87,7 +87,7 @@ def setup_admin(katello_cmd, mode=get_katello_mode()):
     default_info_cmd = organization.DefaultInfo()
     default_info_cmd.add_command("add", organization.AddDefaultInfo())
     default_info_cmd.add_command("remove", organization.RemoveDefaultInfo())
-    default_info_cmd.add_command("apply", organization.ApplyDefaultInfo())
+    default_info_cmd.add_command("sync", organization.SyncDefaultInfo())
     org_cmd.add_command("default_info", default_info_cmd)
     katello_cmd.add_command('org', org_cmd)
 
