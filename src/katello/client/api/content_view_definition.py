@@ -39,7 +39,7 @@ class ContentViewDefinitionAPI(KatelloAPI):
     def show(self, org_id, cvd_id):
         path = "/api/organizations/%s/content_view_definitions/%s" % (org_id,
                 cvd_id)
-        cvd = self.server.GET(path)
+        cvd = self.server.GET(path)[1]
         return cvd
 
     def create(self, org_id, name, label, description, composite=False):
