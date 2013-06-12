@@ -19,16 +19,61 @@ import os
 from katello.client.api.task_status import TaskStatusAPI
 from katello.client.core.base import BaseAction, Command
 from katello.client.api.utils import ApiDataError
+from katello.client.cli.base import opt_parser_add_org
+from katello.client.lib.control import system_exit
+from katello.client.lib.ui.formatters import format_date
 
 # base task action ----------------------------------------------------------------
 
 class TaskAction(BaseAction):
+
+    STATES = ["waiting", "running", "error", "finished", "canceled", "timed_out"]
 
     def __init__(self):
         super(TaskAction, self).__init__()
         self.api = TaskStatusAPI()
 
 # task actions --------------------------------------------------------------------
+
+class List(TaskAction):
+
+    description = _("get a list of tasks")
+
+    def setup_parser(self, parser):
+        opt_parser_add_org(parser, required=1)
+        parser.add_option("--state", dest="state",
+                          help=(_("task state (%s)") % (", ".join(self.STATES))))
+        parser.add_option("--type", dest="task_type",
+                          help=(_("task type eg: content_view_refresh")))
+
+    def check_options(self, validator):
+        validator.require('org')
+        if (self.get_option("state") and self.get_option("state") not in self.STATES):
+            state = self.get_option("state")
+            system_exit(os.EX_DATAERR, _("State '%(state)s' not valid. It must be in [%(options)s].") %
+                        {'state': state, 'options': ", ".join(self.STATES)})
+
+    def run(self):
+        org_name = self.get_option('org')
+        state = self.get_option('state')
+        task_type = self.get_option('task_type')
+
+        tasks = self.api.tasks_by_org(org_name)
+
+        if state:
+            tasks = filter(lambda t: t['state'] == state, tasks)
+        if task_type:
+            tasks = filter(lambda t: t['task_type'] == task_type, tasks)
+
+        self.printer.add_column('uuid', _("UUID"))
+        self.printer.add_column('state', _("State"))
+        self.printer.add_column('task_type', _("Type"))
+        self.printer.add_column('start_time', _("Start Time"), formatter=format_date)
+        self.printer.add_column('finish_time', _("Finish Time"), formatter=format_date)
+
+        self.printer.set_header(_("Task Status"))
+        self.printer.print_items(tasks)
+        return os.EX_OK
 
 class Status(TaskAction):
 
@@ -50,9 +95,12 @@ class Status(TaskAction):
 
         self.printer.add_column('uuid', _("UUID"))
         self.printer.add_column('state', _("State"))
+        self.printer.add_column('task_type', _("Type"))
         self.printer.add_column('progress', _("Progress"))
-        self.printer.add_column('start_time', _("Start Time"))
-        self.printer.add_column('finish_time', ("Finish Time"))
+        self.printer.add_column('start_time', _("Start Time"), formatter=format_date)
+        self.printer.add_column('finish_time', _("Finish Time"), formatter=format_date)
+        self.printer.add_column('task_owner_id', _("Owner ID"))
+        self.printer.add_column('task_owner_type', _("Owner Type"))
         self.printer.set_header(_("Task Status"))
         self.printer.print_item(task)
         return os.EX_OK
