@@ -250,15 +250,15 @@ def get_system(org_name, sys_name, env_name=None, sys_uuid=None):
     system_api = SystemAPI()
     if sys_uuid:
         systems = system_api.systems_by_org(org_name, {'uuid': sys_uuid})
-        if systems is None:
-            raise ApiDataError(_("Could not find System [ %(sys_name)s ] in Org [ %(org_name)s ]") \
-                % {'sys_name':sys_name, 'org_name':org_name})
+        if not systems:
+            raise ApiDataError(_("Could not find System [ %(sys_uuid)s ] in Org [ %(org_name)s ]") \
+                % {'sys_uuid':sys_uuid, 'org_name':org_name})
         elif len(systems) != 1:
             raise ApiDataError(_("Found ambiguous Systems [ %(sys_uuid)s ] in Org [ %(org_name)s ]") \
                 % {'sys_uuid':sys_uuid, 'org_name':org_name})
     elif env_name is None:
         systems = system_api.systems_by_org(org_name, {'name': sys_name})
-        if systems is None or len(systems) == 0:
+        if not systems:
             raise ApiDataError(_("Could not find System [ %(sys_name)s ] in Org [ %(org_name)s ]") \
                 % {'sys_name':sys_name, 'org_name':org_name})
         elif len(systems) != 1:
@@ -268,7 +268,7 @@ def get_system(org_name, sys_name, env_name=None, sys_uuid=None):
     else:
         environment = get_environment(org_name, env_name)
         systems = system_api.systems_by_env(environment["id"], {'name': sys_name})
-        if systems is None:
+        if not systems:
             raise ApiDataError(_("Could not find System [ %(sys_name)s ] " \
                 "in Environment [ %(env_name)s ] in Org [ %(org_name)s ]") \
                 % {'sys_name':sys_name, 'env_name':env_name, 'org_name':org_name})
@@ -282,7 +282,7 @@ def get_distributor(org_name, dist_name, env_name=None, dist_uuid=None):
     distributor_api = DistributorAPI()
     if dist_uuid:
         distributors = distributor_api.distributors_by_org(org_name, {'uuid': dist_uuid})
-        if distributors is None:
+        if not distributors:
             raise ApiDataError(_("Could not find Distributor [ %(dist_name)s ] in Org [ %(org_name)s ]") \
                 % {'dist_name':dist_name, 'org_name':org_name})
         elif len(distributors) != 1:
@@ -290,7 +290,7 @@ def get_distributor(org_name, dist_name, env_name=None, dist_uuid=None):
                 % {'dist_uuid':dist_uuid, 'org_name':org_name})
     elif env_name is None:
         distributors = distributor_api.distributors_by_org(org_name, {'name': dist_name})
-        if distributors is None or len(distributors) == 0:
+        if not distributors:
             raise ApiDataError(_("Could not find Distributor [ %(dist_name)s ] in Org [ %(org_name)s ]") \
                 % {'dist_name':dist_name, 'org_name':org_name})
         elif len(distributors) != 1:
@@ -301,7 +301,7 @@ def get_distributor(org_name, dist_name, env_name=None, dist_uuid=None):
     else:
         environment = get_environment(org_name, env_name)
         distributors = distributor_api.distributors_by_env(environment["id"], {'name': dist_name})
-        if distributors is None:
+        if not distributors:
             raise ApiDataError(_("Could not find Distributor [ %(dist_name)s ] " \
                 "in Environment [ %(env_name)s ] in Org [ %(org_name)s ]") \
                 % {'dist_name':dist_name, 'env_name':env_name, 'org_name':org_name})
