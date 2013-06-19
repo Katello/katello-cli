@@ -249,7 +249,7 @@ def get_system_group(org_name, system_group_name):
 def get_system(org_name, sys_name, env_name=None, sys_uuid=None):
     system_api = SystemAPI()
     if sys_uuid:
-        systems = system_api.systems_by_org(org_name, {'uuid': sys_uuid})
+        systems = system_api.systems_by_org(org_name, {'search': 'uuid:%s' % sys_uuid})
         if not systems:
             raise ApiDataError(_("Could not find System [ %(sys_uuid)s ] in Org [ %(org_name)s ]") \
                 % {'sys_uuid':sys_uuid, 'org_name':org_name})
