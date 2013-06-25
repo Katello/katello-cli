@@ -26,6 +26,10 @@ class TaskStatusAPI(KatelloAPI):
             task = None
         return task
 
+    def tasks_by_org(self, org):
+        path = "/api/organizations/%s/tasks" % str(org)
+        tasks = self.server.GET(path)[1]
+        return tasks
 
 class SystemTaskStatusAPI(KatelloAPI):
     def status(self, taskUuid):

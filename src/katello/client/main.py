@@ -338,6 +338,7 @@ def setup_admin(katello_cmd, mode=get_katello_mode()):
     if mode == 'katello':
         task_cmd = task.Task()
         task_cmd.add_command('status', task.Status())
+        task_cmd.add_command('list', task.List())
         katello_cmd.add_command('task', task_cmd)
 
     client_cmd = client.Client()
