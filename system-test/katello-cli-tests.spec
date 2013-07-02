@@ -33,6 +33,13 @@ BuildArch:     noarch
 Provides a test scripts for client package for managing
 application life-cycle for Linux systems
 
+%package fakecert
+BuildArch: noarch
+Summary: Fake ca certs for Candlepin import tests
+Requires: candlepin-tomcat6
+
+%description fakecert
+Deploys fake ca certs to Candlepin for fake manifest imports.
 
 %prep
 %setup -q
@@ -43,11 +50,20 @@ application life-cycle for Linux systems
 install -d -m 755 $RPM_BUILD_ROOT%{homedir}/script/cli-tests
 pwd
 ls
-cp -Rp cli_tests/ cli-system-test helpers *zip RPM-GPG-KEY* $RPM_BUILD_ROOT%{homedir}/script/cli-tests
+cp -Rp cli_tests/ cli-system-test helpers.sh *zip RPM-GPG-KEY* $RPM_BUILD_ROOT%{homedir}/script/cli-tests
 
+# Fake certs
+install -d -m 755 $RPM_BUILD_ROOT%{_sysconfdir}/candlepin/certs/upstream
+cp fake_cert.crt $RPM_BUILD_ROOT%{_sysconfdir}/candlepin/certs/upstream
 
 %files
 %{homedir}/script/cli-tests
+
+%files fakecert
+%{_sysconfdir}/candlepin/certs/upstream/fake_cert.crt
+
+%posttrans fakecert
+/sbin/service tomcat6 condrestart >/dev/null 2>&1 || :
 
 
 %changelog
