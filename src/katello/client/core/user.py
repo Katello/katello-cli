@@ -23,6 +23,7 @@ from katello.client.core.base import BaseAction, Command
 from katello.client.lib.utils.io import convert_to_mime_type, attachment_file_name, save_report
 from katello.client.lib.utils.data import test_record
 from katello.client.lib.ui.printer import batch_add_columns
+from katello.client.lib.control import get_katello_mode
 
 
 # base user action -----------------------------------------------------
@@ -156,14 +157,16 @@ class Update(UserAction):
     description = _('update an user')
 
     def setup_parser(self, parser):
+        mode = get_katello_mode()
         parser.add_option('--username', dest='username', help=_("user name (required)"))
         parser.add_option('--password', dest='password', help=_("initial password"))
         parser.add_option('--email', dest='email', help=_("email"))
         parser.add_option("--disabled", dest="disabled", help=_("disabled account"))
         parser.add_option('--default_organization', dest='default_organization',
                                help=_("user's default organization name"))
-        parser.add_option('--default_environment', dest='default_environment',
-                               help=_("user's default environment name"))
+        if mode == 'katello':
+            parser.add_option('--default_environment', dest='default_environment',
+                                   help=_("user's default environment name"))
         parser.add_option('--no_default_environment', dest='no_default_environment', action="store_true",
                                help=_("user's default environment is None"))
         parser.add_option('--default_locale', dest='default_locale',
@@ -171,22 +174,37 @@ class Update(UserAction):
 
 
     def check_options(self, validator):
-        validator.require('username')
-        validator.require_at_least_one_of((
-            'password', 'email', 'disabled',
-            'default_organization', 'default_environment',
-            'no_default_environment', 'default_locale'))
+        mode = get_katello_mode()
 
-        validator.require_all_or_none(('default_organization', 'default_environment'))
-        validator.mutually_exclude(('default_organization', 'default_environment'), 'no_default_environment')
+        validator.require('username')
+        if mode == 'katello':
+            validator.require_at_least_one_of((
+                'password', 'email', 'disabled',
+                'default_organization', 'default_environment',
+                'no_default_environment', 'default_locale'))
+        else:
+            validator.require_at_least_one_of((
+                'password', 'email', 'disabled',
+                'default_organization',
+                'no_default_environment', 'default_locale'))
+
+        if mode == 'katello':
+            validator.require_all_or_none(('default_organization', 'default_environment'))
+            validator.mutually_exclude(('default_organization', 'default_environment'), 'no_default_environment')
+        else:
+            validator.mutually_exclude(('default_organization'), 'no_default_environment')
 
     def run(self):
+        mode = get_katello_mode()
         username = self.get_option('username')
         password = self.get_option('password')
         email = self.get_option('email')
         disabled = self.get_option('disabled')
         default_organization = self.get_option('default_organization')
-        default_environment = self.get_option('default_environment')
+        if mode == 'katello':
+            default_environment = self.get_option('default_environment')
+        elif default_organization is not None:
+            default_environment = 'Library'
         no_default_environment = self.get_option('no_default_environment')
         default_locale = self.get_option('default_locale')
 
