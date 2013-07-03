@@ -50,10 +50,10 @@ if sm_present; then
     test_own_cmd_success "rhsm show organizations" $SUDO subscription-manager orgs --username="$USER" --password="$PASSWORD"
     test_own_cmd_success "rhsm show environments" $SUDO subscription-manager environments --username="$USER" --password="$PASSWORD" --org="$RHSM_ORG"
     test_own_cmd_success "rhsm registration with org label" \
-      $SUDO subscription-manager register --username="$USER" --password="$PASSWORD" --org="$RHSM_ORG_LABEL" --name="$HOST" --force
+      $SUDO subscription-manager register --username="$USER" --password="$PASSWORD" --org="$RHSM_ORG_LABEL" --environment="$RHSM_ENV" --name="$HOST" --force
     test_own_cmd_success "rhsm unregister" $SUDO subscription-manager unregister
     test_own_cmd_success "rhsm registration with org name" \
-      $SUDO subscription-manager register --username="$USER" --password="$PASSWORD" --org="$RHSM_ORG" --name="$HOST" --force
+      $SUDO subscription-manager register --username="$USER" --password="$PASSWORD" --org="$RHSM_ORG" --environment="$RHSM_ENV" --name="$HOST" --force
     test_own_cmd_success "rhsm show identity" $SUDO subscription-manager identity
     test_own_cmd_success "rhsm registration with org/env" $SUDO subscription-manager register --username="$USER" --password="$PASSWORD" \
       --org="$RHSM_ORG" --environment="$RHSM_ENV" --name="$HOST" --force
@@ -86,7 +86,7 @@ if sm_present; then
 
     # testing auto-unsubscribe
     test_own_cmd_success "rhsm registration with org" $SUDO subscription-manager register --username="$USER" \
-        --password="$PASSWORD" --org="$RHSM_ORG" --force
+        --password="$PASSWORD" --environment="$RHSM_ENV" --org="$RHSM_ORG" --force
     name1=$($SUDO subscription-manager identity | grep -o -E "^name:.*")
     name=${name1:6} # grab name
     test_success "system unregister in katello" system unregister --name="$name" --org="$RHSM_ORG"

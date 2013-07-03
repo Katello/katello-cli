@@ -60,7 +60,7 @@ if sm_present; then
     skip_message "rhsm registration" "Could not test against hosted"
   else
     test_own_cmd_success "rhsm registration with org" $SUDO subscription-manager register --username="$USER" --password="$PASSWORD" \
-      --org="$MANIFEST_ORG" --name="$HOST" --force
+      --org="$MANIFEST_ORG" --environment="$MANIFEST_ENV" --name="$HOST" --force
     test_own_cmd_success "rhsm subscribe to pool" $SUDO subscription-manager subscribe --pool "$POOLID"
     $SUDO yum remove -y "$INSTALL_PACKAGE" &> /dev/null
     test_own_cmd_success "install package from subscribed product" $SUDO yum install -y "$INSTALL_PACKAGE" --nogpgcheck --releasever "$RELEASEVER" --disablerepo \* --enablerepo "$MANIFEST_REPO_LABEL" &> /dev/null
@@ -73,7 +73,7 @@ if sm_present; then
 
     test_own_cmd_success "rhsm list available SLAs" $SUDO subscription-manager service-level --list --org="$MANIFEST_ORG"  --username="$USER" --password="$PASSWORD"
     test_own_cmd_exit_code 1 "rhsm registration with SLA" $SUDO subscription-manager register --username="$USER" --password="$PASSWORD" \
-      --org="$MANIFEST_ORG" --name="$HOST" --servicelevel="$SLA" --autosubscribe --force
+      --org="$MANIFEST_ORG" --environment="$MANIFEST_ENV" --name="$HOST" --servicelevel="$SLA" --autosubscribe --force
     test_own_cmd_success "rhsm unregister" $SUDO subscription-manager unregister
   fi
 else
