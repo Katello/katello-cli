@@ -19,7 +19,7 @@ Summary:       System tests for Katello client package
 Group:         Applications/System
 License:       GPLv2
 URL:           http://www.katello.org
-Version:       1.4.1
+Version:       1.4.2
 Release:       1%{?dist}
 Source0:       https://fedorahosted.org/releases/k/a/katello/%{name}-%{version}.tar.gz
 
@@ -67,6 +67,22 @@ cp fake_cert.crt $RPM_BUILD_ROOT%{_sysconfdir}/candlepin/certs/upstream
 
 
 %changelog
+* Wed Jul 03 2013 Ivan Necas <inecas@redhat.com> 1.4.2-1
+- Fake manifests signed (inecas@redhat.com)
+- comment out another failing test in katello_agent (msuchy@redhat.com)
+- Merge pull request #33 from xsuchy/pull-req-comment-out (miroslav@suchy.cz)
+- comment out failing test (msuchy@redhat.com)
+- Better command and output formatting on failure. (git@pitr.ch)
+- Add --pause option (git@pitr.ch)
+- Add --services option (git@pitr.ch)
+- Escape search query variables (git@pitr.ch)
+- Fixing errata tests (git@pitr.ch)
+- Remove domain tests (git@pitr.ch)
+- Revert "Removing legacy promotion path" (daviddavis@redhat.com)
+- Removing legacy promotion path (daviddavis@redhat.com)
+- Add 'system-test/' from commit 'ce0c22acac7e8454dc4e12e38702ff000a6c2b40'
+  (ehelms@redhat.com)
+
 * Fri Apr 12 2013 Justin Sherrill <jsherril@redhat.com> 1.4.1-1
 - version bump to 1.4 (jsherril@redhat.com)
 
