@@ -63,7 +63,7 @@ if sm_present; then
       --org="$MANIFEST_ORG" --environment="$MANIFEST_ENV" --name="$HOST" --force
     test_own_cmd_success "rhsm subscribe to pool" $SUDO subscription-manager subscribe --pool "$POOLID"
     $SUDO yum remove -y "$INSTALL_PACKAGE" &> /dev/null
-    test_own_cmd_success "install package from subscribed product" $SUDO yum install -y "$INSTALL_PACKAGE" --nogpgcheck --releasever "$RELEASEVER" --disablerepo \* --enablerepo "$MANIFEST_REPO_LABEL" &> /dev/null
+    test_own_cmd_success "install package from subscribed product" $SUDO yum install -y "$INSTALL_PACKAGE" --nogpgcheck --releasever "$RELEASEVER" --disablerepo \* --enablerepo "$MANIFEST_REPO_LABEL"
     $SUDO yum remove -y "$INSTALL_PACKAGE" &> /dev/null
 
     # TODO: modify fake manifest to simulate rhel so that this can be tested again

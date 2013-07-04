@@ -35,17 +35,17 @@ EOF
     echo "removing package "$INSTALL_PACKAGE" from the system"
     $SUDO yum remove -y "$INSTALL_PACKAGE" &> /dev/null
     test_success "remote system package install" system packages --install "$INSTALL_PACKAGE" --name "$HOST" --org "$TEST_ORG"
-    test_own_cmd_success "package installed" rpm -q "$INSTALL_PACKAGE" &> /dev/null
+    test_own_cmd_success "package installed" rpm -q "$INSTALL_PACKAGE"
     test_success "remote system package update" system packages --update "$INSTALL_PACKAGE" --name "$HOST" --org "$TEST_ORG"
     test_success "remote system package remove" system packages  --remove "$INSTALL_PACKAGE" --name "$HOST" --org "$TEST_ORG"
-    test_own_cmd_failure "package unistalled" rpm -q "$INSTALL_PACKAGE" &> /dev/null
+    test_own_cmd_failure "package unistalled" rpm -q "$INSTALL_PACKAGE"
 
     echo "removing group "$INSTALL_GROUP" from the system"
     $SUDO yum groupremove -y "$INSTALL_GROUP" &> /dev/null
     test_success "remote system package group install" system packages --install_group "$INSTALL_GROUP" --name "$HOST" --org "$TEST_ORG"
-    test_own_cmd_success "package group installed"  rpm -q "$INSTALL_GROUP_PACKAGE" &> /dev/null
+    test_own_cmd_success "package group installed"  rpm -q "$INSTALL_GROUP_PACKAGE"
     test_success "remote system package group remove" system packages  --remove_group "$INSTALL_GROUP" --name "$HOST" --org "$TEST_ORG"
-    test_own_cmd_failure "package group uninstalled" rpm -q "$INSTALL_GROUP_PACKAGE" &> /dev/null
+    test_own_cmd_failure "package group uninstalled" rpm -q "$INSTALL_GROUP_PACKAGE"
 
     # perform some tests on a system group
     test_success "system group create" system_group create --name "$SYSTEM_GROUP_NAME" --description "group description" --org "$TEST_ORG"
@@ -55,19 +55,19 @@ EOF
     $SUDO yum remove -y "$INSTALL_PACKAGE" &> /dev/null
 # FIXME - this fails with NotImplementedError due commit e65237ba3e82879919c89ca8336a765efe1b290a
 #    test_success "remote system group package install" system_group packages --install "$INSTALL_PACKAGE" --name "$SYSTEM_GROUP_NAME" --org "$TEST_ORG"
-#    test_own_cmd_success "package installed" rpm -q "$INSTALL_PACKAGE" &> /dev/null
+#    test_own_cmd_success "package installed" rpm -q "$INSTALL_PACKAGE"
 #    test_success "remote system group package update" system_group packages --update "$INSTALL_PACKAGE" --name "$SYSTEM_GROUP_NAME" --org "$TEST_ORG"
 #    test_success "remote system group package remove" system_group packages  --remove "$INSTALL_PACKAGE" --name "$SYSTEM_GROUP_NAME" --org "$TEST_ORG"
-#    test_own_cmd_failure "package unistalled" rpm -q "$INSTALL_PACKAGE" &> /dev/null
+#    test_own_cmd_failure "package unistalled" rpm -q "$INSTALL_PACKAGE"
 
     echo "removing group "$INSTALL_GROUP" from the system"
     $SUDO yum groupremove -y "$INSTALL_GROUP" &> /dev/null
 # FIXME - this fails with NotImplementedError due commit e65237ba3e82879919c89ca8336a765efe1b290a
 #    test_success "remote system group package group install" system_group packages --install_group "$INSTALL_GROUP" --name "$SYSTEM_GROUP_NAME" --org "$TEST_ORG"
-#    test_own_cmd_success "package group installed"  rpm -q "$INSTALL_GROUP_PACKAGE" &> /dev/null
+#    test_own_cmd_success "package group installed"  rpm -q "$INSTALL_GROUP_PACKAGE"
 #    test_success "remote system group package group update" system_group packages --update_group "$INSTALL_GROUP" --name "$SYSTEM_GROUP_NAME" --org "$TEST_ORG"
 #    test_success "remote system group package group remove" system_group packages  --remove_group "$INSTALL_GROUP" --name "$SYSTEM_GROUP_NAME" --org "$TEST_ORG"
-#    test_own_cmd_failure "package group uninstalled" rpm -q "$INSTALL_GROUP_PACKAGE" &> /dev/null
+#    test_own_cmd_failure "package group uninstalled" rpm -q "$INSTALL_GROUP_PACKAGE"
 
     test_success "remove system from system group" system_group remove_systems --system_uuids "$SYSTEM_UUID" --name "$SYSTEM_GROUP_NAME" --org "$TEST_ORG"
     test_success "system group delete" system_group delete --name "$SYSTEM_GROUP_NAME" --org "$TEST_ORG"
