@@ -6,7 +6,7 @@ PLAN_1_NAME='plan_1'
 PLAN_1_NEW_NAME='plan_1_updated'
 PLAN_2_NAME='plan_2'
 
-DATE_TOMORROW=`date +"%Y-%m-%d" -d tomorrow`
+DATE_TOMORROW=$(ruby -e 'puts (Time.now + 60*60*24).strftime "%Y-%m-%d"')
 
 test_success "sync_plan create recurrent" sync_plan create --org="$TEST_ORG" --name="$PLAN_1_NAME"\
  --description="plan 1 desc." --date="$DATE_TOMORROW" --time="09:00:00" --interval="weekly"
