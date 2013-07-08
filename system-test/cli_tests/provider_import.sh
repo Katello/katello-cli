@@ -63,11 +63,15 @@ if sm_present; then
       --org="$MANIFEST_ORG" --environment="$MANIFEST_ENV" --name="$HOST" --force
     test_own_cmd_success "rhsm subscribe to pool" $SUDO subscription-manager subscribe --pool "$POOLID"
     $SUDO yum remove -y "$INSTALL_PACKAGE" &> /dev/null
-    test_own_cmd_success "install package from subscribed product" $SUDO yum install -y "$INSTALL_PACKAGE" --nogpgcheck --releasever "$RELEASEVER" --disablerepo \* --enablerepo "$MANIFEST_REPO_LABEL" &> /dev/null
+    test_own_cmd_success "install package from subscribed product" $SUDO yum install -y "$INSTALL_PACKAGE" --nogpgcheck --releasever "$RELEASEVER" --disablerepo \* --enablerepo "$MANIFEST_REPO_LABEL"
     $SUDO yum remove -y "$INSTALL_PACKAGE" &> /dev/null
-    test_own_cmd_success "rhsm set releasever" $SUDO subscription-manager release --set "$RELEASEVER"
-    test_own_cmd_success "install package from subscribed product after set releasever" $SUDO yum install -y "$INSTALL_PACKAGE" --nogpgcheck &> /dev/null
-    $SUDO yum remove -y "$INSTALL_PACKAGE" &> /dev/null
+
+    # TODO: modify fake manifest to simulate rhel so that this can be tested again
+    # test_own_cmd_success "rhsm set releasever" $SUDO subscription-manager release --set "$RELEASEVER"
+    # test_own_cmd_success "install package from subscribed product after set releasever" $SUDO yum install -y "$INSTALL_PACKAGE" --nogpgcheck
+    # $SUDO yum remove -y "$INSTALL_PACKAGE" &> /dev/null
+    skip_message "rhsm set releasever" "Since BZ 818205 it's harder to test this without real manifest"
+
     test_own_cmd_success "rhsm unsubscribe all" $SUDO subscription-manager unsubscribe --all
     test_own_cmd_success "rhsm unregister" $SUDO subscription-manager unregister
 
