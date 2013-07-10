@@ -16,6 +16,7 @@
 
 from katello.client.lib.control import get_katello_mode
 from katello.client.core import (
+  about,
   activation_key,
   environment,
   organization,
@@ -120,6 +121,8 @@ def setup_admin(katello_cmd, mode=get_katello_mode()):
     permission_cmd.add_command('delete', permission.Delete())
     permission_cmd.add_command('available_verbs', permission.ListAvailableVerbs())
     katello_cmd.add_command('permission', permission_cmd)
+
+    katello_cmd.add_command('about', about.Status())
 
     katello_cmd.add_command('ping', ping.Status())
     katello_cmd.add_command('version', version.Info())
