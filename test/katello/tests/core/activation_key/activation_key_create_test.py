@@ -24,6 +24,10 @@ class RequiredCLIOptionsTests(CLIOptionTestCase):
         ('--org=ACME', '--name=key1', '--env=Dev', '--content_view_id=1', )
     ]
 
+    def setUp(self):
+        self.mock(katello.client.core.activation_key, 'get_katello_mode', self.mode)
+        self.mock(katello.client.cli.base, 'get_katello_mode', self.mode)
+
 
 class ActivationKeyCreateTest(CLIActionTestCase):
 

@@ -33,6 +33,10 @@ class CLIOptionTestCase(CLITestCase):
 
     allowed_options = []
     disallowed_options = []
+    mode = 'katello'
+
+    def setUp(self):
+        self.mock(katello.client.cli.base, 'get_katello_mode', self.mode)
 
     def get_silent_parser(self):
         parser = self.action.create_parser()
