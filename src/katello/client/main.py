@@ -136,7 +136,6 @@ def setup_admin(katello_cmd, mode=get_katello_mode()):
         prod_cmd.add_command('synchronize', product.Sync())
         prod_cmd.add_command('cancel_sync', product.CancelSync())
         prod_cmd.add_command('status', product.Status())
-        prod_cmd.add_command('promote', product.Promote())
         prod_cmd.add_command('set_plan', product.SetSyncPlan())
         prod_cmd.add_command('remove_plan', product.RemoveSyncPlan())
         prod_cmd.add_command('repository_sets', product.ListRepositorySets())

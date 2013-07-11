@@ -146,6 +146,7 @@ class Create(ActivationKeyAction):
     def check_options(self, validator):
         validator.require(('name', 'org', 'environment'))
         validator.mutually_exclude(('view_name', 'view_label', 'view_id'))
+        validator.require_at_least_one_of(('view_name', 'view_label', 'view_id'))
 
     def run(self):
         orgName = self.get_option('org')
@@ -196,8 +197,6 @@ class Update(ActivationKeyAction):
         parser.add_option('--description', dest='description',
                                help=_("new description"))
         opt_parser_add_content_view(parser)
-        parser.add_option('--remove_content_view', dest="remove_view", action="store_true",
-                          help=_("content view label eg: database"))
         parser.add_option('--limit', dest='usage_limit',
                                help=_("usage limit (set -1 for no limit)"))
 
@@ -208,7 +207,7 @@ class Update(ActivationKeyAction):
 
     def check_options(self, validator):
         validator.require(('name', 'org'))
-        validator.mutually_exclude(('view_name', 'view_label', 'view_id', 'remove_view'))
+        validator.mutually_exclude(('view_name', 'view_label', 'view_id'))
 
     def run(self):
         orgName = self.get_option('org')
@@ -222,7 +221,6 @@ class Update(ActivationKeyAction):
         view_label = self.get_option("view_label")
         view_name = self.get_option("view_name")
         view_id = self.get_option("view_id")
-        remove_view = self.get_option("remove_view")
 
         if envName != None:
             environment = get_environment(orgName, envName)
@@ -235,9 +233,7 @@ class Update(ActivationKeyAction):
             return os.EX_DATAERR
         key = keys[0]
 
-        if remove_view:
-            view_id = False
-        elif view_name or view_label or view_id:
+        if view_name or view_label or view_id:
             view = get_content_view(orgName, view_label, view_name, view_id)
             view_id = view['id']
         else:

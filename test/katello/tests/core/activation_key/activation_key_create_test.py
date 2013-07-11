@@ -15,12 +15,13 @@ class RequiredCLIOptionsTests(CLIOptionTestCase):
     disallowed_options = [
         ('--content_view=view1', '--org=ACME', '--environment=Dev'),
         ('--name=key1'),
-        ('--org=ACME', '--name=key1')
+        ('--org=ACME', '--name=key1'),
+        ('--org=ACME', '--name=key1', '--env=Dev', ),
     ]
 
     allowed_options = [
-        ('--org=ACME', '--name=key1', '--env=Dev', ),
-        ('--org=ACME', '--name=key1', '--env=Dev', '--content_view=view1', )
+        ('--org=ACME', '--name=key1', '--env=Dev', '--content_view=view1', ),
+        ('--org=ACME', '--name=key1', '--env=Dev', '--content_view_id=1', )
     ]
 
 
