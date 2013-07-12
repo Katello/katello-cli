@@ -25,6 +25,7 @@ from katello.client.lib.utils.data import test_record
 from katello.client.lib.ui import printer
 from katello.client.cli.base import opt_parser_add_org, opt_parser_add_environment, \
     opt_parser_add_content_view
+from katello.client.lib.control import get_katello_mode
 
 class ActivationKeyAction(BaseAction):
 
@@ -144,9 +145,10 @@ class Create(ActivationKeyAction):
                                help=_("usage limit (unlimited by default)"))
 
     def check_options(self, validator):
-        validator.require(('name', 'org', 'environment'))
-        validator.mutually_exclude(('view_name', 'view_label', 'view_id'))
-        validator.require_at_least_one_of(('view_name', 'view_label', 'view_id'))
+        if get_katello_mode() == 'katello':
+            validator.require(('name', 'org', 'environment'))
+            validator.mutually_exclude(('view_name', 'view_label', 'view_id'))
+            validator.require_at_least_one_of(('view_name', 'view_label', 'view_id'))
 
     def run(self):
         orgName = self.get_option('org')

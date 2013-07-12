@@ -27,6 +27,7 @@ from katello.client.logutil import getLogger, logfile
 from katello.client import server
 
 from katello.client.server import BasicAuthentication, SSLAuthentication, NoAuthentication
+from katello.client.lib.control import get_katello_mode
 
 
 _log = getLogger(__name__)
@@ -75,13 +76,14 @@ def opt_parser_add_content_view(parser, required=None, name='content_view'):
     """
     Add content view options (name, label, id) to command
     """
-    require = _(" (view name, label, or id required)") if required else ""
-    parser.add_option("--"+name, dest="view_name",
-                      help=_("content view name eg: database%s" % require))
-    parser.add_option("--"+name+"_label", dest="view_label",
-                      help=_("content view label eg: database%s" % require))
-    parser.add_option("--"+name+"_id", dest="view_id",
-                      help=_("content view id eg: 6%s" % require))
+    if get_katello_mode() == 'katello':
+        require = _(" (view name, label, or id required)") if required else ""
+        parser.add_option("--"+name, dest="view_name",
+                        help=_("content view name eg: database%s" % require))
+        parser.add_option("--"+name+"_label", dest="view_label",
+                        help=_("content view label eg: database%s" % require))
+        parser.add_option("--"+name+"_id", dest="view_id",
+                        help=_("content view id eg: 6%s" % require))
 
 class OptionException(Exception):
     """
