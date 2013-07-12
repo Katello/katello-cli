@@ -430,7 +430,9 @@ class Register(SystemAction):
     def check_options(self, validator):
         validator.require(('name', 'org'))
         validator.require_at_most_one_of(('activationkey', 'environment'))
-        validator.mutually_exclude(('view_name', 'view_label', 'view_id'))
+        if get_katello_mode() == 'katello':
+            validator.mutually_exclude(('view_name', 'view_label', 'view_id'))
+            validator.require_at_least_one_of(('activationkey', 'environment'))
 
     def run(self):
         name = self.get_option('name')
