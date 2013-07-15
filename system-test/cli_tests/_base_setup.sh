@@ -35,5 +35,6 @@ test_success "repo create ($FEWUPS_REPO)" repo create --product="$FEWUPS_PRODUCT
 test_success "content definition create ($TEST_DEF)" content definition create --org="$TEST_ORG" --name="$TEST_DEF"
 test_success "content definition add_repo ($FEWUPS_REPO to $TEST_DEF)" content definition add_repo --org="$TEST_ORG" --name="$TEST_DEF" --product=$FEWUPS_PRODUCT --repo="$FEWUPS_REPO"
 test_success "content definition publish ($TEST_DEF to $TEST_VIEW)" content definition publish --org=$TEST_ORG --label=$TEST_DEF --view_name=$TEST_VIEW
+test_success "content view promote ($TEST_VIEW to $TEST_ENV)" content view promote --org="$TEST_ORG" --name="$TEST_VIEW" --env="$TEST_ENV"
 REPO_NAME=$(get_repo_name)
 REPO_ID=$(get_repo_id)

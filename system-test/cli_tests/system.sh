@@ -11,7 +11,7 @@ ACTIVATION_KEY_NAME_2="activation_key_2_$RAND"
 ACTIVATION_KEY_NAME_3="activation_key_3_$RAND"
 SYS_GROUP_NAME="system_group_$RAND"
 
-test_success "system register as admin" system register --name="$SYSTEM_NAME_ADMIN" --org="$TEST_ORG" --environment="$TEST_ENV"
+test_success "system register as admin" system register --name="$SYSTEM_NAME_ADMIN" --org="$TEST_ORG" --environment="$TEST_ENV" --content_view="$TEST_VIEW"
 skip_test_success "system register as $TEST_USER" "none" -u "$TEST_USER" -p password system register --name="$SYSTEM_NAME_USER" --org="$TEST_ORG" --environment="$TEST_ENV"
 test_success "system info" system info --name="$SYSTEM_NAME_ADMIN" --org="$TEST_ORG"
 UUID=$($CMD system info --name="$SYSTEM_NAME_ADMIN" --org="$TEST_ORG" | grep -Eo '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}' | head -n1)
@@ -49,14 +49,14 @@ test_success "system update release" system update --org="$TEST_ORG" --name="$SY
 test_success "system update environment" system update --org="$TEST_ORG" --name="$SYSTEM_NAME_ADMIN" --new_environment="$TEST_ENV_2"
 test_success "system unregister uuid" system unregister --uuid="$UUID" --org="$TEST_ORG"
 
-test_success "activation key create" activation_key create --name="$ACTIVATION_KEY_NAME_1" --description="key description" --environment="$TEST_ENV" --org="$TEST_ORG"
-test_success "activation key create" activation_key create --name="$ACTIVATION_KEY_NAME_2" --description="key description" --environment="$TEST_ENV" --org="$TEST_ORG"
+test_success "activation key create" activation_key create --name="$ACTIVATION_KEY_NAME_1" --description="key description" --environment="$TEST_ENV" --org="$TEST_ORG" --content_view="$TEST_VIEW"
+test_success "activation key create" activation_key create --name="$ACTIVATION_KEY_NAME_2" --description="key description" --environment="$TEST_ENV" --org="$TEST_ORG" --content_view="$TEST_VIEW"
 test_success "system register with activation key" system register --name="$SYSTEM_NAME_ADMIN" --org="$TEST_ORG" --activationkey="$ACTIVATION_KEY_NAME_1"
 test_success "system unregister" system unregister --name="$SYSTEM_NAME_ADMIN" --org="$TEST_ORG"
 test_success "system register with activation keys" system register --name="$SYSTEM_NAME_ADMIN" --org="$TEST_ORG" --activationkey="$ACTIVATION_KEY_NAME_1,$ACTIVATION_KEY_NAME_2"
 test_success "system unregister" system unregister --name="$SYSTEM_NAME_ADMIN" --org="$TEST_ORG"
 
-test_success "limited ak create" activation_key create --name="$ACTIVATION_KEY_NAME_3" --description="key description" --environment="$TEST_ENV" --org="$TEST_ORG" --limit=1
+test_success "limited ak create" activation_key create --name="$ACTIVATION_KEY_NAME_3" --description="key description" --environment="$TEST_ENV" --org="$TEST_ORG" --limit=1 --content_view="$TEST_VIEW"
 test_success "system register with limited ak" system register --name="$SYSTEM_NAME_ADMIN" --org="$TEST_ORG" --activationkey="$ACTIVATION_KEY_NAME_3"
 test_failure "system register with limited ak" system register --name="$SYSTEM_NAME_ADMIN_2" --org="$TEST_ORG" --activationkey="$ACTIVATION_KEY_NAME_3"
 test_success "system add custom_info" system custom_info add --org="$TEST_ORG" --name="$SYSTEM_NAME_ADMIN" --keyname="asset_tag" --value="1234"
