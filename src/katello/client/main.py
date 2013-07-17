@@ -263,11 +263,11 @@ def setup_admin(katello_cmd, mode=get_katello_mode()):
     prov_cmd.add_command('list', provider.List())
     prov_cmd.add_command('import_manifest', provider.ImportManifest())
     prov_cmd.add_command('refresh_manifest', provider.RefreshManifest())
+    prov_cmd.add_command('update', provider.Update())
     if mode == 'headpin':
         prov_cmd.add_command('delete_manifest', provider.DeleteManifest())
     if mode == 'katello':
         prov_cmd.add_command('create', provider.Update(create=True))
-        prov_cmd.add_command('update', provider.Update())
         prov_cmd.add_command('delete', provider.Delete())
         prov_cmd.add_command('synchronize', provider.Sync())
         prov_cmd.add_command('cancel_sync', provider.CancelSync())
