@@ -207,3 +207,7 @@ class SystemAPI(KatelloAPI):
     def remove_consumer_deletion_record(self, uuid):
         path = "/api/consumers/%s/deletionrecord" % uuid
         return self.server.DELETE(path)[1]
+
+    def get_deleted_consumers(self):
+        path = "/api/deleted_consumers"
+        return self.server.GET(path)[1]
