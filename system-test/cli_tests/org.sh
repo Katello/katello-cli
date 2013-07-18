@@ -8,3 +8,5 @@ test_success "org info" org info --name="$TEST_ORG"
 test_success "org subscriptions" org subscriptions --name="$TEST_ORG"
 test_success "org default_info add" org default_info add --name="$TEST_ORG" --type=system --keyname=asset_tag
 test_success "org default_info remove" org default_info remove --name="$TEST_ORG" --type=system --keyname=asset_tag
+check_delayed_jobs_running
+test_success "org attach_all_systems" org attach_all_systems --name="$TEST_ORG"

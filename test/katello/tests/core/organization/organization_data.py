@@ -1,5 +1,3 @@
-
-
 ORGS = [
   {
     "name": "ACME_Corporation",
@@ -11,8 +9,6 @@ ORGS = [
     "default_info" : { "system": ["asset_tag"] }
   }
 ]
-
-
 
 ENVS = [
   {
@@ -52,8 +48,6 @@ ENVS = [
 
 LIBRARY = ENVS[0]
 
-
-
 POOL = {
   "href": "/pools/40288ae9333fe87201334033dd21001b",
   "sourceEntitlement": None,
@@ -86,4 +80,23 @@ POOL = {
     "id": "40288ae9333fe87201333fe956790018",
     "key": "ACME_Corporation"
   }
+}
+
+ATTACH_ALL_TASK = {
+    'task_owner_id': None,
+    'task_owner_type': None,
+    'task_type': 'monitor owner all_systems auto_attach',
+    'start_time': None,
+    'uuid': '749c8e1a-e591-4063-bd10-6d47e38034d4',
+    'parameters': {},
+    'user_id': 1,
+    'finish_time': None,
+    'created_at': '2013-07-18T19:14:46Z',
+    'updated_at': '2013-07-18T19:14:46Z',
+    'organization_id': 2,
+    'state': 'finished',
+    'result': None,
+    'progress': None,
+    'pending?': True,
+    'id': 1
 }
