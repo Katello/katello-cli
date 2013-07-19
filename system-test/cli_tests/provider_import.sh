@@ -12,6 +12,8 @@ fi
 
 MANIFEST_ORG="org_manifest_$RAND"
 MANIFEST_ENV="env_manifest_$RAND"
+MANIFEST_DEF="cvdef_manifest_$RAND"
+MANIFEST_VIEW="cv_manifest_$RAND"
 MANIFEST_AK1=$(nospace "manifest_ak1_$RAND")
 MANIFEST_AK2=$(nospace "manifest_ak2_$RAND")
 CS1_NAME="changeset_manifest_$RAND"
@@ -38,8 +40,13 @@ test_success "enable repo set" product repository_set_enable --name="$MANIFEST_E
 test_success "products refresh" provider refresh_products --name "Red Hat" --org "$MANIFEST_ORG"
 test_success "repo enable" repo enable --name="$MANIFEST_REPO" --product "$MANIFEST_EPROD" --org "$MANIFEST_ORG"
 test_success "repo synchronize" repo synchronize --name="$MANIFEST_REPO" --product "$MANIFEST_EPROD" --org "$MANIFEST_ORG"
+
+test_success "content definition create ($MANIFEST_DEF)" content definition create --org="$MANIFEST_ORG" --name="$MANIFEST_DEF"
+test_success "content definition add_repo ($MANIFEST_REPO to $MANIFEST_DEF)" content definition add_repo --org="$MANIFEST_ORG" --name="$MANIFEST_DEF" --product="$MANIFEST_EPROD" --repo="$MANIFEST_REPO"
+test_success "content definition publish ($MANIFEST_DEF to $MANIFEST_VIEW)" content definition publish --org=$MANIFEST_ORG --label=$MANIFEST_DEF --view_name=$MANIFEST_VIEW
+
 test_success "changeset create" changeset create --org="$MANIFEST_ORG" --environment="$MANIFEST_ENV" --name="$CS1_NAME"
-test_success "changeset add view" changeset update  --org="$MANIFEST_ORG" --environment="$MANIFEST_ENV" --name="$CS1_NAME" --add_content_view="$TEST_VIEW"
+test_success "changeset add view" changeset update  --org="$MANIFEST_ORG" --environment="$MANIFEST_ENV" --name="$CS1_NAME" --add_content_view="$MANIFEST_VIEW"
 check_delayed_jobs_running
 test_success "changeset promote" changeset promote --org="$MANIFEST_ORG" --environment="$MANIFEST_ENV" --name="$CS1_NAME"
 POOLID=$($CMD org subscriptions --name "$MANIFEST_ORG" -g -d ";" --noheading | grep "$MANIFEST_PROD_CP" | awk -F ';' '{print $3}') # grab a pool for CP
