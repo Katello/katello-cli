@@ -37,21 +37,21 @@ if sm_present; then
   else
     test_success "org create for rhsm" org create --name="$RHSM_ORG" --label="$RHSM_ORG_LABEL" --description="org for rhsm"
     test_success "environment create for rhsm" environment create --org="$RHSM_ORG" --name="$RHSM_ENV" --prior="Library"
-    test_success "activation key 1 create" activation_key create --name="$RHSM_AK1" --environment="$RHSM_ENV" --org="$RHSM_ORG"
-    test_success "activation key 2 create" activation_key create --name="$RHSM_AK2" --environment="$RHSM_ENV" --org="$RHSM_ORG"
     test_success "provider create" provider create --name="$RHSM_YPROV" --org="$RHSM_ORG" --url="$RHSM_REPO"
     test_success "product create" product create --provider="$RHSM_YPROV" --org="$RHSM_ORG" --name="$RHSM_YPROD" --url="$RHSM_REPO" --assumeyes
     test_success "product create" product create --provider="$RHSM_YPROV" --org="$RHSM_ORG" --name="$RHSM_ZPROD" --url="$RHSM_REPO" --assumeyes
-    test_success "definition create" definition create --name="$RHSM_DEF" --org="$RHSM_ORG"
-    test_success "definition add_product" definition add_product --name="$RHSM_DEF" --org="$RHSM_ORG" --product="$RHSM_YPROD"
-    test_success "definition add_product" definition add_product --name="$RHSM_DEF" --org="$RHSM_ORG" --product="$RHSM_ZPROD"
-    test_success "definition publish" definition publish --name="$RHSM_DEF" --org="$RHSM_ORG" --view_name="$RHSM_VIEW"
-    POOLID=$(grab_pool_with_katello)
-    test_success "add product to ak 1" activation_key update --add_subscription="$POOLID" --name="$RHSM_AK1" --environment="$RHSM_ENV" --org="$RHSM_ORG"
+    test_success "definition create" content definition create --name="$RHSM_DEF" --org="$RHSM_ORG"
+    test_success "definition add_product" content definition add_product --name="$RHSM_DEF" --org="$RHSM_ORG" --product="$RHSM_YPROD"
+    test_success "definition add_product" content definition add_product --name="$RHSM_DEF" --org="$RHSM_ORG" --product="$RHSM_ZPROD"
+    test_success "definition publish" content definition publish --name="$RHSM_DEF" --org="$RHSM_ORG" --view_name="$RHSM_VIEW"
     test_success "changeset create" changeset create --org="$RHSM_ORG" --environment="$RHSM_ENV" --name="$CS1_NAME"
     test_success "changeset add view" changeset update  --org="$RHSM_ORG" --environment="$RHSM_ENV" --name="$CS1_NAME" --add_content_view="$RHSM_VIEW"
     check_delayed_jobs_running
     test_success "changeset promote" changeset promote --org="$RHSM_ORG" --environment="$RHSM_ENV" --name="$CS1_NAME"
+    test_success "activation key 1 create" activation_key create --name="$RHSM_AK1" --environment="$RHSM_ENV" --org="$RHSM_ORG" --content_view="$RHSM_VIEW"
+    test_success "activation key 2 create" activation_key create --name="$RHSM_AK2" --environment="$RHSM_ENV" --org="$RHSM_ORG" --content_view="$RHSM_VIEW"
+    POOLID=$(grab_pool_with_katello)
+    test_success "add product to ak 1" activation_key update --add_subscription="$POOLID" --name="$RHSM_AK1" --environment="$RHSM_ENV" --org="$RHSM_ORG"
 
     test_own_cmd_success "rhsm show organizations" $SUDO subscription-manager orgs --username="$USER" --password="$PASSWORD"
     test_own_cmd_success "rhsm show environments" $SUDO subscription-manager environments --username="$USER" --password="$PASSWORD" --org="$RHSM_ORG"
