@@ -51,7 +51,7 @@ check_delayed_jobs_running
 test_success "changeset promote" changeset promote --org="$MANIFEST_ORG" --environment="$MANIFEST_ENV" --name="$CS1_NAME"
 POOLID=$($CMD org subscriptions --name "$MANIFEST_ORG" -g -d ";" --noheading | grep "$MANIFEST_PROD_CP" | awk -F ';' '{print $3}') # grab a pool for CP
 
-test_success "system register with SLA" system register --name="$HOST" --org="$MANIFEST_ORG" --environment="$MANIFEST_ENV" --servicelevel="$SLA"
+test_success "system register with SLA" system register --name="$HOST" --org="$MANIFEST_ORG" --environment="$MANIFEST_ENV" --content_view="$MANIFEST_VIEW" --servicelevel="$SLA"
 test_success "system update SLA" system update --name="$HOST" --org="$MANIFEST_ORG" --servicelevel="$SLA"
 test_success "system unregister" system unregister --name="$HOST"  --org="$MANIFEST_ORG"
 
@@ -67,7 +67,7 @@ if sm_present; then
     skip_message "rhsm registration" "Could not test against hosted"
   else
     test_own_cmd_success "rhsm registration with org" $SUDO subscription-manager register --username="$USER" --password="$PASSWORD" \
-      --org="$MANIFEST_ORG" --environment="$MANIFEST_ENV" --name="$HOST" --force
+      --org="$MANIFEST_ORG" --environment="$MANIFEST_ENV/$MANIFEST_VIEW" --name="$HOST" --force
     test_own_cmd_success "rhsm subscribe to pool" $SUDO subscription-manager subscribe --pool "$POOLID"
     $SUDO yum remove -y "$INSTALL_PACKAGE" &> /dev/null
     test_own_cmd_success "install package from subscribed product" $SUDO yum install -y "$INSTALL_PACKAGE" --nogpgcheck --releasever "$RELEASEVER" --disablerepo \* --enablerepo "$MANIFEST_REPO_LABEL"
