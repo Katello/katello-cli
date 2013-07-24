@@ -52,3 +52,7 @@ class OrganizationAPI(KatelloAPI):
     def pools(self, name):
         path = "/api/owners/%s/pools" % u_str(name)
         return self.server.GET(path)[1]
+
+    def attach_all_systems(self, name):
+        path = "/api/organizations/%s/auto_attach" % u_str(name)
+        return self.server.POST(path, "")[1]

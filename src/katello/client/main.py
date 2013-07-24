@@ -90,6 +90,7 @@ def setup_admin(katello_cmd, mode=get_katello_mode()):
     default_info_cmd.add_command("remove", organization.RemoveDefaultInfo())
     default_info_cmd.add_command("sync", organization.SyncDefaultInfo())
     org_cmd.add_command("default_info", default_info_cmd)
+    org_cmd.add_command("attach_all_systems", organization.AttachAllSystems())
     katello_cmd.add_command('org', org_cmd)
 
     user_cmd = user.User()

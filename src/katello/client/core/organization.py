@@ -393,6 +393,34 @@ class SyncDefaultInfo(OrganizationAction):
             print _("Organization [ %s ] completed syncing default info") % org_name
             return os.EX_OK
 
+# ------------------------------------------------------------------------------
+
+class AttachAllSystems(OrganizationAction):
+
+    description = _("Attach available subscriptions to all systems within an organization")
+
+    def __init__(self):
+        super(AttachAllSystems, self).__init__()
+
+    def setup_parser(self, parser):
+        parser.add_option("--name", dest='name', help=_("organization name eg: foo.example.com (required)"))
+
+    def check_options(self, validator):
+        validator.require('name')
+
+    def run(self):
+        org_name = self.get_option("name")
+
+        task = AsyncTask(self.api.attach_all_systems(org_name))
+        run_spinner_in_bg(wait_for_async_task, [task],
+            message=_("Attaching available subscriptions to all systems, please wait... "))
+
+        return evaluate_task_status(task,
+            failed = _("Organization [ %s ] failed to attach subscriptions to all systems") % org_name,
+            canceled = _("Organization [ %s ] canceled attachment of subscriptions to all systems") % org_name,
+            ok = _("Organzation [ %s ] completed attachment of subscriptions to all systems") % org_name
+        )
+
 # organization command ------------------------------------------------------------
 
 class Organization(Command):
