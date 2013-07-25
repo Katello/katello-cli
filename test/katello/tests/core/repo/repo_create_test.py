@@ -17,7 +17,8 @@ class RequiredCLIOptionsTests(CLIOptionTestCase):
         ('--org=ACME', '--name=repo1', '--url=https://localhost', '--product=product1'),
         ('--org=ACME', '--name=repo1', '--url=ftp://localhost', '--product=product1'),
         ('--org=ACME', '--name=repo1', '--url=file:///a/b/c/', '--product=product1'),
-        ('--org=ACME', '--name=repo1', '--url=file:///a/b/c/', '--product=product1', '--unprotected')
+        ('--org=ACME', '--name=repo1', '--url=file:///a/b/c/', '--product=product1', '--unprotected'),
+        ('--org=ACME', '--name=repo1', '--url=http://redhat.com', '--product=product1', '--content_type=yum')
     ]
 
 
