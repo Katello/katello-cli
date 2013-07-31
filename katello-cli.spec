@@ -21,7 +21,7 @@ Summary:       Client package for managing application life-cycle for Linux syst
 Group:         Applications/System
 License:       GPLv2
 URL:           http://www.katello.org
-Version:       1.4.2
+Version:       1.4.3
 Release:       1%{?dist}
 Source0:       https://fedorahosted.org/releases/k/a/katello/%{name}-%{version}.tar.gz
 Requires:      %{base_name}-cli-common
@@ -177,6 +177,149 @@ popd
 %{homedir}/tests
 
 %changelog
+* Wed Jul 31 2013 Bryan Kearney <bkearney@redhat.com> 1.4.3-1
+- Merge pull request #55 from komidore64/org-heal-magic (komidore64@gmail.com)
+- Merge pull request #56 from beav/add-get-deleted-consumer-call
+  (cduryee@redhat.com)
+- Fix rhsm-related system tests (inecas@redhat.com)
+- Fix content views handling in system tests (inecas@redhat.com)
+- org auto-attach - adding tests (komidore64@gmail.com)
+- org auto-attach - attach available subscriptions to all systems within an
+  organization (komidore64@gmail.com)
+- Merge pull request #57 from parthaa/system-test-fix (parthaa@gmail.com)
+- Adding the Update method for Providers to both Headpin and Katello mode.
+  (ogmaciel@gnome.org)
+- Fix for some system tests (paji@redhat.com)
+- add get_deleted_consumers call (cduryee@redhat.com)
+- Systems: Fixing tests and more (daviddavis@redhat.com)
+- Fixing the activation key system tests (daviddavis@redhat.com)
+- Merge pull request #52 from Katello/delete-legacy-promotion
+  (daviddavis@redhat.com)
+- Initial CLI support for the new About API. (ogmaciel@gnome.org)
+- Merge pull request #50 from beav/master (cduryee@redhat.com)
+- add last_checkin time to register (cduryee@redhat.com)
+- system tests - don't throw away test results (inecas@redhat.com)
+- system tests - the usage of packagegroup info changed a bit
+  (inecas@redhat.com)
+- system tests - skip subscription-manager release --set (inecas@redhat.com)
+- system tests - postpone system unregister (inecas@redhat.com)
+- Merge pull request #45 from pitr-ch/story/foreign-keys (kontakt@pitr.ch)
+- Merge pull request #47 from thomasmckay/980523-user-env
+  (thomasmckay@redhat.com)
+- system-tests - The environment is needed for RHSM registration
+  (inecas@redhat.com)
+- 980523-user-env - do not require --default_environment in headpin mode
+  (thomasmckay@redhat.com)
+- Automatic commit of package [katello-cli-tests] release [1.4.2-1].
+  (inecas@redhat.com)
+- Fake manifests signed (inecas@redhat.com)
+- Merge pull request #42 from daviddavis/task_commands (daviddavis@redhat.com)
+- Fix date formatting for BSD (git@pitr.ch)
+- 974264 - switch to new search API syntax vs hard coded UUID
+  (mmccune@redhat.com)
+- Tasks: Added tests for list and status (daviddavis@redhat.com)
+- Merge pull request #40 from Katello/bkearney/952236 (bryan.kearney@gmail.com)
+- 952236: Null lists or empty lists of systems should show not found to user
+  (bkearney@redhat.com)
+- Tasks: Worked on show and added list (daviddavis@redhat.com)
+- Fixed ContentViewDefinition's 'show' method to return only the json object.
+  (ogmaciel@gnome.org)
+- Merge pull request #32 from komidore64/dancewalkers (komidore64@gmail.com)
+- default_info sync - converting apply to sync (komidore64@gmail.com)
+- 969371: Fix a type in the return message (bkearney@redhat.com)
+- Merge pull request #39 from jlsherrill/cv_remove (jlsherrill@gmail.com)
+- 929067 - content definition remove_view would fail if view was not associated
+  (jsherril@redhat.com)
+- Content Views: Fixing verbage for add/remove view for definition
+  (daviddavis@redhat.com)
+- Merge pull request #37 from tstrachota/bug_967467_parse_tokens
+  (inecas@redhat.com)
+- 967467 - updated regexp for parsing input line in shell mode
+  (tstrachota@redhat.com)
+- Merge pull request #36 from xsuchy/pull-req-fix-unit-tests
+  (miroslav@suchy.cz)
+- run unit test in %%check phase (msuchy@redhat.com)
+- fix path in production mode (msuchy@redhat.com)
+- comment out another failing test in katello_agent (msuchy@redhat.com)
+- Merge pull request #33 from xsuchy/pull-req-comment-out (miroslav@suchy.cz)
+- comment out failing test (msuchy@redhat.com)
+- Merge pull request #31 from pitr-ch/story/foreign-keys (kontakt@pitr.ch)
+- Better command and output formatting on failure. (git@pitr.ch)
+- Add --pause option (git@pitr.ch)
+- Add --services option (git@pitr.ch)
+- Escape search query variables (git@pitr.ch)
+- Ignore .idea files (git@pitr.ch)
+- Fixing errata tests (git@pitr.ch)
+- Remove domain tests (git@pitr.ch)
+- Merge pull request #30 from daviddavis/temp_1369061847
+  (daviddavis@redhat.com)
+- Cleaning up and fixing setup.py (daviddavis@redhat.com)
+- Updating README (daviddavis@redhat.com)
+- Merge pull request #26 from thomasmckay/headpin-lib-cli
+  (thomasmckay@redhat.com)
+- Merge pull request #27 from komidore64/cores-yo (komidore64@gmail.com)
+- pass in installed products on register (cduryee@redhat.com)
+- core/ram subs - displaying subscriptions limits (komidore64@gmail.com)
+- headpin-lib-cli - remove env edit commands from headpin
+  (thomasmckay@redhat.com)
+- Merge pull request #16 from jlsherrill/repo-set-fix (bbuckingham@redhat.com)
+- Content views: Updating activation key and system options
+  (daviddavis@redhat.com)
+- CLI: add messages to filter rule creation and deletion, fixes #956151.
+  (walden@redhat.com)
+- Revert "Revert "Removing legacy promotion path"" (daviddavis@redhat.com)
+- Revert "Removing legacy promotion path" (daviddavis@redhat.com)
+- Merge pull request #17 from jlsherrill/failed_sync (jlsherrill@gmail.com)
+- Merge pull request #22 from thomasmckay/reasons (thomasmckay@redhat.com)
+- Merge pull request #20 from parthaa/949937 (parthaa@gmail.com)
+- reasons - api call to get subscription status (thomasmckay@redhat.com)
+- Merge pull request #18 from daviddavis/temp_1367948119
+  (daviddavis@redhat.com)
+- Merge pull request #19 from daviddavis/temp_1367951278
+  (daviddavis@redhat.com)
+- Merge pull request #21 from jlsherrill/all_verbs (jlsherrill@gmail.com)
+- 949937 - Modified the order of the params in a permission error
+  (paji@redhat.com)
+- 955612 - Fixing filter rule example (daviddavis@redhat.com)
+- fixes 2065 - adding all_verbs to permission creation (jsherril@redhat.com)
+- Added cv options. fixes Katello/katello#2088 (daviddavis@redhat.com)
+- Merge pull request #15 from daviddavis/rope (daviddavis@redhat.com)
+- fixing issue where failed syncs are not detected (jsherril@redhat.com)
+- Ignoring rope files (daviddavis@redhat.com)
+- fixes 1777 - adding proper product validation for reposet cli commands
+  (jsherril@redhat.com)
+- Merge pull request #1 from xsuchy/pull-req-tx-reorg (miroslav@suchy.cz)
+- sys-sla - allow passing of empty string for service level
+  (thomasmckay@redhat.com)
+- Merge pull request #11 from daviddavis/temp_1367580457
+  (daviddavis@redhat.com)
+- switching to README.md as our readme file (mmccune@redhat.com)
+- making pylint happy and adding a return statement (komidore64@gmail.com)
+- asynchronous default_info info apply in the CLI (komidore64@gmail.com)
+- Merge pull request #10 from daviddavis/temp_1367493317
+  (daviddavis@redhat.com)
+- Updating README for katello-cli (daviddavis@redhat.com)
+- org-sla-cli - allow update of org default service level
+  (thomasmckay@redhat.com)
+- Removing legacy promotion path (daviddavis@redhat.com)
+- Merge pull request #3 from pitr-ch/bug/953524 (kontakt@pitr.ch)
+- Merge pull request #9 from tstrachota/api_v2 (martin.bacovsky@gmail.com)
+- adding find_by_custom_info to python api (jsherril@redhat.com)
+- Merge pull request #6 from daviddavis/temp_1367344162 (daviddavis@redhat.com)
+- Ignoring ctags (daviddavis@redhat.com)
+- dist-cli - provider refresh_manifest (thomasmckay@redhat.com)
+- workaround that "tito tag" does not create correct path in metadata file if
+  package is in git-root (msuchy@redhat.com)
+- katello-agent is no more in this git repo (msuchy@redhat.com)
+- copy nightly scripts from katello.git (msuchy@redhat.com)
+- 953524 - CLI synced 'repo status' shows error (git@pitr.ch)
+- correct paths in .tx/config after git reorganization (msuchy@redhat.com)
+- katello.katello resource is no more in this git (msuchy@redhat.com)
+- return back original .tx/config (msuchy@redhat.com)
+- Travis - Adding travis config. (ehelms@redhat.com)
+- Api V2 - distributors controller added (mbacovsk@redhat.com)
+- api v2 - error handling refactored (mbacovsk@redhat.com)
+
 * Sat Apr 27 2013 Mike McCune <mmccune@redhat.com> 1.4.2-1
 - adding rel-eng directory for new location (mmccune@redhat.com)
 - errata - api/cli - update to use errata_id vs id (bbuckingham@redhat.com)
