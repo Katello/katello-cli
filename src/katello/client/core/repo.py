@@ -123,6 +123,8 @@ class Create(RepoAction):
             help=_("GPG key to be assigned to the repository; by default, the product's GPG key will be used."))
         parser.add_option('--nogpgkey', action='store_true',
             help=_("Don't assign a GPG key to the repository."))
+        parser.add_option('--content_type', dest="content_type",
+            help=_("Repo content type ('yum' or 'puppet', default is 'yum')."))
 
     def check_options(self, validator):
         validator.require(('name', 'org', 'url'))
@@ -140,8 +142,10 @@ class Create(RepoAction):
         gpgkey   = self.get_option('gpgkey')
         nogpgkey   = self.get_option('nogpgkey')
         unprotected = self.get_option('unprotected')
+        content_type = self.get_option('content_type')
         product = get_product(orgName, prodName, prodLabel, prodId)
-        self.api.create(orgName, product["id"], name, label, url, unprotected, gpgkey, nogpgkey)
+        self.api.create(orgName, product["id"], name, label, url, unprotected,
+                        gpgkey, nogpgkey, content_type)
         print _("Successfully created repository [ %s ]") % name
 
         return os.EX_OK

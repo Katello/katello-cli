@@ -2,6 +2,7 @@
 
 header "Repo"
 
+test_success "repo create with content_type puppet" repo create --org="$TEST_ORG" --environment="$TEST_ENV" --product="$FEWUPS_PRODUCT" --url="http://localhost.local"
 test_success "repo list by org and env" repo list --org="$TEST_ORG" --environment="$TEST_ENV"
 test_success "repo list by org only" repo list --org="$TEST_ORG"
 test_success "repo list by org and product" repo list --org="$TEST_ORG" --product="$FEWUPS_PRODUCT"
