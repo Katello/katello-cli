@@ -46,7 +46,7 @@ class AddSystemCustomInfo(SystemCustomInfo):
 
     def check_options(self, validator):
         super(AddSystemCustomInfo, self).check_options(validator)
-        validator.require(('org', 'keyname'))
+        validator.require('value')
 
     def run(self):
         org_name = self.get_option('org')
@@ -79,8 +79,8 @@ class UpdateSystemCustomInfo(SystemCustomInfo):
         parser.add_option('--value', dest='value', help=_("replacement value"))
 
     def check_options(self, validator):
-        validator.require(('org', 'keyname', 'value'))
-        validator.mutually_exclude('environment', 'uuid')
+        super(UpdateSystemCustomInfo, self).check_options(validator)
+        validator.require('value')
 
     def run(self):
         org_name = self.get_option('org')
