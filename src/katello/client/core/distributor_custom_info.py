@@ -99,12 +99,12 @@ class UpdateCustomInfo(BaseDistributorCustomInfo):
 
         ident = dist_uuid if dist_uuid else dist_name
 
-        test_record(response,
-            _("Successfully updated Custom Information [ %(keyname)s ] for Distributor [ %(ident)s ]") \
-                % {'keyname':keyname, 'ident':ident},
-            _("Could not update Custom Information [ %(keyname)s ] for Distributor [ %(ident)s ]") \
+        if response is not None:
+            print _("Successfully updated Custom Information [ %(keyname)s ] for Distributor [ %(ident)s ]") \
                 % {'keyname':keyname, 'ident':ident}
-        )
+        else:
+            print _("Could not update Custom Information [ %(keyname)s ] for Distributor [ %(ident)s ]") \
+                % {'keyname':keyname, 'ident':ident}
 
 
 class RemoveCustomInfo(BaseDistributorCustomInfo):
