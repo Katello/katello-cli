@@ -72,6 +72,13 @@ def opt_parser_add_environment(parser, required=None, default=''):
                       help=_('environment name e.g.: production%(required)s%(default)s')
                         % {'required':required, 'default':default})
 
+def opt_parser_add_node(parser):
+    """
+    Add node view options (name, id) to command
+    """
+    parser.add_option("--name", dest="name", help=_("Node name (name or id required))"))
+    parser.add_option("--id", dest="id", help=_("Node id (name or id required))"))
+
 def opt_parser_add_content_view(parser, required=None, name='content_view'):
     """
     Add content view options (name, label, id) to command
