@@ -49,6 +49,7 @@ class ActivationKeyCreateTest(CLIActionTestCase):
         self.mock(self.module, 'get_content_view', self.VIEW)
         self.mock(self.action.api, "create", self.KEY)
         self.mock(self.module, "get_environment", {"id": 1})
+        self.mock(self.module, 'get_katello_mode', 'katello')
 
     def test_it_calls_get_content_view(self):
         self.run_action(os.EX_OK)

@@ -39,13 +39,16 @@ class List(ActivationKeyAction):
     description = _('list all activation keys')
 
     def setup_parser(self, parser):
+        mode = get_katello_mode()
         opt_parser_add_org(parser, required=1)
-        opt_parser_add_environment(parser, default="Library")
+        if mode == 'katello':
+            opt_parser_add_environment(parser, default="Library")
 
     def check_options(self, validator):
         validator.require('org')
 
     def run(self):
+        mode = get_katello_mode()
         envName = self.get_option('environment')
         orgName = self.get_option('org')
 
@@ -66,7 +69,7 @@ class List(ActivationKeyAction):
                 k['usage'] = str(k['usage_count'])
             else:
                 k['usage'] = str(k['usage_count']) + '/' + str(k['usage_limit'])
-            if k['content_view_id']:
+            if mode == 'katello' and k['content_view_id']:
                 view = get_content_view(orgName, view_id=k['content_view_id'])
                 k['content_view'] = view["name"]
 
@@ -74,8 +77,9 @@ class List(ActivationKeyAction):
         self.printer.add_column('name', _("Name"))
         self.printer.add_column('description', _("Description"), multiline=True)
         self.printer.add_column('usage', _("Usage"))
-        self.printer.add_column('environment_id', _("Environment ID"))
-        self.printer.add_column('content_view', _("Content View"))
+        if mode == 'katello':
+            self.printer.add_column('environment_id', _("Environment ID"))
+            self.printer.add_column('content_view', _("Content View"))
 
         self.printer.set_header(_("Activation Key List"))
         self.printer.print_items(keys)
@@ -101,6 +105,7 @@ class Info(ActivationKeyAction):
         validator.require(('name', 'org'))
 
     def run(self):
+        mode = get_katello_mode()
         orgName = self.get_option('org')
         keyName = self.get_option('name')
 
@@ -112,7 +117,7 @@ class Info(ActivationKeyAction):
         for akey in keys:
             akey["pools"] = "[ "+ ", ".join([pool["cp_id"] for pool in akey["pools"]]) +" ]"
 
-        if keys[0]['content_view_id']:
+        if mode == 'katello' and keys[0]['content_view_id']:
             view = get_content_view(orgName, view_id=keys[0]['content_view_id'])
             keys[0]['content_view'] = view['label']
 
@@ -121,8 +126,9 @@ class Info(ActivationKeyAction):
         self.printer.add_column('description', _("Description"), multiline=True)
         self.printer.add_column('usage_limit', _("Usage Limit"), \
             value_formatter=lambda x: "unlimited" if x == -1 else x)
-        self.printer.add_column('environment_id', _("Environment ID"))
-        self.printer.add_column('content_view', _("Content View"), value_formatter=lambda x: "[ %s ]" % x)
+        if mode == 'katello':
+            self.printer.add_column('environment_id', _("Environment ID"))
+            self.printer.add_column('content_view', _("Content View"), value_formatter=lambda x: "[ %s ]" % x)
         self.printer.add_column('pools', _("Pools"), multiline=True, show_with=printer.VerboseStrategy)
         self.printer.set_header(_("Activation Key Info"))
         self.printer.print_item(keys[0])
@@ -134,13 +140,15 @@ class Create(ActivationKeyAction):
     description = _('create an activation key')
 
     def setup_parser(self, parser):
+        mode = get_katello_mode()
         parser.add_option('--name', dest='name',
                                help=_("activation key name (required)"))
         opt_parser_add_org(parser, required=1)
-        opt_parser_add_environment(parser, required=1)
         parser.add_option('--description', dest='description',
                                help=_("activation key description"))
-        opt_parser_add_content_view(parser)
+        if mode == 'katello':
+            opt_parser_add_environment(parser, required=1)
+            opt_parser_add_content_view(parser)
         parser.add_option('--limit', dest='usage_limit', type="int",
                                help=_("usage limit (unlimited by default)"))
 
@@ -149,16 +157,25 @@ class Create(ActivationKeyAction):
             validator.require(('name', 'org', 'environment'))
             validator.mutually_exclude(('view_name', 'view_label', 'view_id'))
             validator.require_at_least_one_of(('view_name', 'view_label', 'view_id'))
+        else:
+            validator.require(('name', 'org'))
 
     def run(self):
+        mode = get_katello_mode()
         orgName = self.get_option('org')
-        envName = self.get_option('environment')
         keyName = self.get_option('name')
         keyDescription = self.get_option('description')
         usageLimit = self.get_option('usage_limit')
-        view_label = self.get_option("view_label")
-        view_name = self.get_option("view_name")
-        view_id = self.get_option("view_id")
+        if mode == 'katello':
+            envName = self.get_option('environment')
+            view_label = self.get_option("view_label")
+            view_name = self.get_option("view_name")
+            view_id = self.get_option("view_id")
+        else:
+            envName = 'Library'
+            view_label = None
+            view_name = None
+            view_id = None
 
         if usageLimit is None:
             usageLimit = -1
@@ -189,11 +206,13 @@ class Update(ActivationKeyAction):
     description = _('update an activation key')
 
     def setup_parser(self, parser):
+        mode = get_katello_mode()
         parser.add_option('--name', dest='name',
                                help=_("activation key name (required)"))
         opt_parser_add_org(parser, required=1)
-        parser.add_option('--environment', dest='env',
-                               help=_("new environment name e.g.: dev"))
+        if mode == 'katello':
+            parser.add_option('--environment', dest='env',
+                                   help=_("new environment name e.g.: dev"))
         parser.add_option('--new_name', dest='new_name',
                               help=_("new activation key name"))
         parser.add_option('--description', dest='description',
@@ -208,21 +227,32 @@ class Update(ActivationKeyAction):
                                help=_("remove a pool from the activation key"))
 
     def check_options(self, validator):
+        mode = get_katello_mode()
         validator.require(('name', 'org'))
-        validator.mutually_exclude(('view_name', 'view_label', 'view_id'))
+        if mode == 'katello':
+            validator.mutually_exclude(('view_name', 'view_label', 'view_id'))
 
     def run(self):
+        mode = get_katello_mode()
         orgName = self.get_option('org')
         keyName = self.get_option('name')
-        envName = self.get_option('env')
+        if mode == 'katello':
+            envName = self.get_option('env')
+        else:
+            envName = None
         newKeyName = self.get_option('new_name')
         keyDescription = self.get_option('description')
         usageLimit = self.get_option('usage_limit')
         add_poolids = self.get_option('add_poolid') or []
         remove_poolids = self.get_option('remove_poolid') or []
-        view_label = self.get_option("view_label")
-        view_name = self.get_option("view_name")
-        view_id = self.get_option("view_id")
+        if mode == 'katello':
+            view_label = self.get_option("view_label")
+            view_name = self.get_option("view_name")
+            view_id = self.get_option("view_id")
+        else:
+            view_label = None
+            view_name = None
+            view_id = None
 
         if envName != None:
             environment = get_environment(orgName, envName)
