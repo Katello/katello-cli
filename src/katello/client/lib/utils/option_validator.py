@@ -39,13 +39,28 @@ class OptionValidator(object):
         return (not getattr(self.options, opt_dest) is None)
 
 
+    def blank(self, opt_dest):
+        """
+        Check if option is blank
+
+        :type opt_dest: str
+        :param opt_dest: option destination to Check
+        :return: True if the option is an empty string, False otherwise
+        """
+        opt = getattr(self.options, opt_dest)
+        if isinstance(opt, str):
+            return (len(opt) <= 0)
+        else:
+            return False
+
+
     def any_exist(self, opt_dests):
         """
         Check if any of options is present
 
         :type opt_dests: iterable(str)
         :param opt_dests: option destinations to check
-        :return: True if the any of the options was set, otherwise False
+        :return: True if any of the options were set, otherwise False
         """
         return any( self.exists(dest) for dest in opt_dests )
 
@@ -56,7 +71,7 @@ class OptionValidator(object):
 
         :type opt_dests: iterable(str)
         :param opt_dests: option destinations to check
-        :return: True if the all the options were set, otherwise False
+        :return: True if all of the options were set, otherwise False
         """
         return all( self.exists(dest) for dest in opt_dests )
 
@@ -73,7 +88,7 @@ class OptionValidator(object):
         """
         opt_dests = self.__ensure_iterable(opt_dests)
         for opt_dest in opt_dests:
-            if not self.exists(opt_dest):
+            if not self.exists(opt_dest) or self.blank(opt_dest):
                 flag = self.__get_option_string(opt_dest)
                 if message:
                     self.add_option_error(message)

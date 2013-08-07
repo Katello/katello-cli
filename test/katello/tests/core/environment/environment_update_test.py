@@ -11,12 +11,12 @@ import katello.client.core.environment
 class RequiredCLIOptionsTests(CLIOptionTestCase):
     #required: name, new_name
     action = Update()
-    
+
     allowed_options = [
-        ('--org=', '--name=','--prior=' ),
-        ('--org=', '--name=','--prior=', '--description=' ),
-        ('--org=', '--name=','--prior=', '--new-name=' ),
-        ('--org=', '--name=','--prior=', '--new-name=', '--description=' ),
+        ('--org=ACME_Corporation', '--name=environment1', '--prior=Library' ),
+        ('--org=ACME_Corporation', '--name=environment1', '--prior=Library', '--description=description' ),
+        ('--org=ACME_Corporation', '--name=environment1', '--prior=Library', '--new-name=new_environment' ),
+        ('--org=ACME_Corporation', '--name=environment1', '--prior=Library', '--new-name=new_environment', '--description=new_description' ),
     ]
 
 
@@ -26,7 +26,7 @@ class EnvironmentUpdateTest(EnvironmentBaseTest):
     NEW_ENV_NAME = 'CHEZ'
 
     OPTIONS = {
-        'old_name': NEW_ENV['name'], 
+        'old_name': NEW_ENV['name'],
         'name': NEW_ENV_NAME,
         'org': "ACME_Corporation",
         'prior': 'Library'
@@ -45,7 +45,7 @@ class EnvironmentUpdateTest(EnvironmentBaseTest):
 
     def test_calls_the_api(self):
         self.run_action()
-        self.action.api.update.assert_called_once_with(self.OPTIONS['org'], self.NEW_ENV['id'], 
+        self.action.api.update.assert_called_once_with(self.OPTIONS['org'], self.NEW_ENV['id'],
             self.NEW_ENV_NAME, None, self.LIBRARY['id'])
 
     def test_it_fails_when_server_side_update_failed(self):
