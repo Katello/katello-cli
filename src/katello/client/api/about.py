@@ -23,3 +23,6 @@ class AboutAPI(KatelloAPI):
         path = "/api/about/"
         status = self.server.GET(path)[1]
         return status
+
+    def authentication_method(self):
+        return self.about()['Authentication']
