@@ -18,6 +18,7 @@ import os
 
 from katello.client.api.user import UserAPI
 from katello.client.api.user_role import UserRoleAPI
+from katello.client.api.about import AboutAPI
 from katello.client.api.utils import get_user, get_environment
 from katello.client.core.base import BaseAction, Command
 from katello.client.lib.utils.io import convert_to_mime_type, attachment_file_name, save_report
@@ -59,6 +60,10 @@ class Create(UserAction):
 
     description = _('create user')
 
+    def __init__(self):
+        super(Create, self).__init__()
+        self.about_api = AboutAPI()
+
     def setup_parser(self, parser):
         parser.add_option('--username', dest='username', help=_("user name (required)"))
         parser.add_option('--password', dest='password', help=_("initial password (required)"))
@@ -73,7 +78,10 @@ class Create(UserAction):
                                help=_("user's default locale"))
 
     def check_options(self, validator):
-        validator.require(('username', 'password', 'email'))
+        auth = self.about_api.authentication_method()
+        validator.require('username')
+        if not auth == 'ldap':
+            validator.require(('password', 'email'))
         validator.require_all_or_none(('default_organization', 'default_environment'))
 
     def run(self):
