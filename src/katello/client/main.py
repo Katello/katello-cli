@@ -42,6 +42,7 @@ from katello.client.core import (
   gpg_key,
   system_group,
   admin,
+  node,
   content,
   content_view,
   content_view_definition,
@@ -275,6 +276,14 @@ def setup_admin(katello_cmd, mode=get_katello_mode()):
         prov_cmd.add_command('status', provider.Status())
         prov_cmd.add_command('refresh_products', provider.RefreshProducts())
     katello_cmd.add_command('provider', prov_cmd)
+
+    if mode == 'katello':
+        node_cmd = node.Node()
+        node_cmd.add_command('list', node.List())
+        node_cmd.add_command('sync', node.Sync())
+        node_cmd.add_command('add_environment', node.AddEnvironment())
+        node_cmd.add_command('remove_environment', node.RemoveEnvironment())
+        katello_cmd.add_command('node', node_cmd)
 
     if mode == 'katello':
         cset_cmd = changeset.Changeset()

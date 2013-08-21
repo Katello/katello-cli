@@ -38,7 +38,7 @@ from katello.client.api.distributor import DistributorAPI
 from katello.client.api.content_view import ContentViewAPI
 from katello.client.api.content_view_definition import ContentViewDefinitionAPI
 from katello.client.api.filter import FilterAPI
-
+from katello.client.api.node import NodeAPI
 
 class ApiDataError(Exception):
     """
@@ -154,6 +154,12 @@ def get_filter(org_name, def_id, filter_name=None, filter_id=None):
         # there can only be one filter matching name in a def
         return filters[0]
 
+def get_node(node_name, node_id):
+    nodes = NodeAPI().nodes()
+    for node in nodes:
+        if node['name'] == node_name or str(node['id']) == str(node_id):
+            return node
+    raise ApiDataError(_("Could not find node [ %s ].") % (node_name or node_id))
 
 def get_repo(orgName, repoName, prodName=None, prodLabel=None, prodId=None, envName=None, includeDisabled=False,
              viewName=None, viewLabel=None, viewId=None):
