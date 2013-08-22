@@ -438,8 +438,9 @@ class List(RepoAction):
         prodId = self.get_option('product_id')
         listDisabled = self.has_option('disabled')
 
-        batch_add_columns(self.printer, {'id': _("ID")}, {'name': _("Name")}, \
-            {'label': _("Label")}, {'package_count': _("Package Count")})
+        batch_add_columns(self.printer, {'id': _("ID")}, {'name': _("Name")},
+                          {'content_type': _("Type")}, {'label': _("Label")},
+                          {'package_count': _("Package Count")})
         self.printer.add_column('last_sync', _("Last Sync"), formatter=format_sync_time)
 
         prodIncluded = prodName or prodLabel or prodId
