@@ -614,7 +614,7 @@ class Subscriptions(SystemAction):
             self.printer.add_column('entitlementId', _("Subscription ID"))
             self.printer.add_column('serialIds', _('Serial ID'))
             batch_add_columns(self.printer, {'poolName': _("Pool Name")}, \
-                {'expires': _("Expires")}, {'consumed': _("Consumed")}, \
+                {'poolType': _("Pool Type")}, {'expires': _("Expires")}, {'consumed': _("Consumed")}, \
                 {'quantity': _("Quantity")}, {'sla': _("SLA")}, {'contractNumber': _("Contract Number")})
             self.printer.add_column('providedProductsFormatted', _('Provided Products'))
             self.printer.print_items(entitlements())
