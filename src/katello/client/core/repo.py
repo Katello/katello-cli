@@ -324,7 +324,13 @@ class Info(SingleRepoAction):
         repo = self.get_repo(True)
 
         batch_add_columns(self.printer, {'id': _("ID")}, {'name': _("Name")}, \
-            {'package_count': _("Package Count")})
+                          {'content_type': _("Type")})
+
+        if repo["content_type"] == "puppet":
+            self.printer.add_column('puppet_module_count', _("Puppet Module Count"))
+        elif repo["content_type"] == "yum":
+            self.printer.add_column('package_count', _("Package Count"))
+
         batch_add_columns(self.printer, {'arch': _("Arch")}, {'feed': _("URL")}, \
             show_with=printer.VerboseStrategy)
         self.printer.add_column('last_sync', _("Last Sync"), \
@@ -439,8 +445,10 @@ class List(RepoAction):
         listDisabled = self.has_option('disabled')
 
         batch_add_columns(self.printer, {'id': _("ID")}, {'name': _("Name")},
-                          {'content_type': _("Type")}, {'label': _("Label")},
-                          {'package_count': _("Package Count")})
+                          {'label': _("Label")}, {'content_type': _("Type")},
+                          {'package_count': _("Package Count")},
+                          {'puppet_module_count': _("Puppet Module Count")})
+
         self.printer.add_column('last_sync', _("Last Sync"), formatter=format_sync_time)
 
         prodIncluded = prodName or prodLabel or prodId
