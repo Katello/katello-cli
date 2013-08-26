@@ -31,6 +31,7 @@ from katello.client.core import (
   permission,
   distribution,
   package,
+  puppet_module,
   errata,
   system,
   system_custom_info,
@@ -169,6 +170,13 @@ def setup_admin(katello_cmd, mode=get_katello_mode()):
         package_group_cmd.add_command('category_list', packagegroup.CategoryList())
         package_group_cmd.add_command('category_info', packagegroup.CategoryInfo())
         katello_cmd.add_command('package_group', package_group_cmd)
+
+    if mode == 'katello':
+        puppet_module_cmd = puppet_module.PuppetModule()
+        puppet_module_cmd.add_command('list', puppet_module.List())
+        puppet_module_cmd.add_command('info', puppet_module.Info())
+        puppet_module_cmd.add_command('search', puppet_module.Search())
+        katello_cmd.add_command('puppet_module', puppet_module_cmd)
 
     if mode == 'katello':
         dist_cmd = distribution.Distribution()
