@@ -352,7 +352,7 @@ class AddRemoveRepo(FilterAction):
         print message
 
 class AddRule(FilterAction):
-    content_types = ["rpm", "package_group", "erratum"]
+    content_types = ["rpm", "package_group", "erratum", "puppet_module"]
     inclusion_types = ["includes", "excludes"]
     default_inclusion_type = "includes"
     @property
@@ -397,7 +397,7 @@ class AddRule(FilterAction):
         cvd_filter = get_filter(org_name, definition["id"], filter_name, filter_id)
 
         self.api.create_rule(cvd_filter["id"], definition["id"], org_name, rule, content, inclusion)
-        print _("Successfully created rule [ %s ]") % rule 
+        print _("Successfully created rule [ %s ]") % rule
         return os.EX_OK
 
     @classmethod
@@ -439,6 +439,15 @@ class AddRule(FilterAction):
         epilog.append(pformat(example))
         epilog.append(_("By Date Range and Errata Type"))
         example.update(example_date)
+        epilog.append(pformat(example))
+        epilog.append("")
+
+        epilog.append(_("Puppet Module") + ": (puppet_module)")
+        epilog.append(_("Specification"))
+        epilog.append("""{"units":<["name", "author", "version", "min_version", "max_version"]*>}""")
+        example = {"units": [{"name": "m*", "author": "puppetlabs", "version": "2.0.7"},
+                  {"name": "httpd", "min_version": "2.0.4", "max_version": "2.0.8"}]}
+        epilog.append(_("Examples"))
         epilog.append(pformat(example))
         epilog.append("")
 
