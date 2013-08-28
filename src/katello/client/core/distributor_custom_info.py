@@ -128,7 +128,7 @@ class RemoveCustomInfo(BaseDistributorCustomInfo):
 
         ident = dist_uuid if dist_uuid else dist_name
 
-        if len(response) == 0:
+        if response is not None:
             print _("Successfully removed Custom Information from Distributor [ %s ]") % ident
         else:
             print _("Could not remove Custom Information from Distributor [ %s ]") % ident
