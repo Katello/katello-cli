@@ -22,7 +22,8 @@ class RequiredCLIOptionsTests(CLIOptionTestCase):
     allowed_options = [
         ('--org=ACME', '--definition=content_def1', '--name=flt', '--content=rpm', """--rule='{}'"""),
         ('--org=ACME', '--definition=content_def1', '--name=flt', '--content=package_group', '--type=includes', """--rule='{}'"""),
-        ('--org=ACME', '--definition=content_def1', '--name=flt', '--content=erratum', '--type=excludes', """--rule='{}'""")
+        ('--org=ACME', '--definition=content_def1', '--name=flt', '--content=erratum', '--type=excludes', """--rule='{}'"""),
+        ('--org=ACME', '--definition=content_def1', '--name=flt', '--content=puppet_module', '--type=includes', """--rule='{}'""")
     ]
 
 
