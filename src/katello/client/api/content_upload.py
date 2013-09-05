@@ -15,35 +15,33 @@
 
 from katello.client.api.base import KatelloAPI
 
+
 class ContentUploadAPI(KatelloAPI):
     """
     Connection class to access content upload requests
     """
-    def create(self):
-        path = "/api/content_uploads/"
+
+    def create(self, repo_id):
+        path = "/api/repositories/%s/content_uploads" % repo_id
         return self.server.POST(path)[1]
 
-    def upload_bits(self, upload_id, offset, filepath):
-        path = "/api/content_uploads/%s/%s/upload_bits/" % upload_id % offset
-        return self.server.PUT(path, filepath)[1]
-
-    def import_into_repo(self, repo_id, unit_type_id, upload_id, unit_key, unit_metadata):
+    def upload_bits(self, repo_id, upload_id, offset, content):
         data = {
-                'upload_request': {
-                   'unit_type_id': unit_type_id,
-                   'upload_id': upload_id,
-                   'unit_key': unit_key,
-                   'unit_metadata': unit_metadata
-                }
-              }
-        path = "/api/repositories/%s/import_into_repo/" % repo_id
+            'offset': str(offset),
+            'content': content
+        }
+        path = "/api/repositories/%s/content_uploads/%s/upload_bits/" % (repo_id, upload_id)
+        return self.server.PUT(path, data, multipart=True)[1]
+
+    def import_into_repo(self, repo_id, upload_id, unit_key, unit_metadata):
+        data = {
+            'unit_key': unit_key,
+            'unit_metadata': unit_metadata
+        }
+        path = "/api/repositories/%s/content_uploads/%s/import_into_repo/" % \
+            (repo_id, upload_id)
         return self.server.POST(path, data)[1]
 
-    def delete(self, upload_id):
-        path = "/api/content_uploads/%s/"  % upload_id
+    def delete(self, repo_id, upload_id):
+        path = "/api/repositories/%s/content_uploads/%s/" % (repo_id, upload_id)
         return self.server.DELETE(path)[1]
-
-    def list(self):
-        path = " /api/content_uploads/"
-        return self.server.GET(path)[1]
-

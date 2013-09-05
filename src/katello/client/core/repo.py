@@ -15,9 +15,6 @@
 #
 
 import os
-import rpm
-import sys
-import hashlib
 import urlparse
 
 from katello.client import constants
@@ -36,13 +33,10 @@ from katello.client.lib.ui.printer import batch_add_columns
 from katello.client.lib.ui.progress import ProgressBar, run_async_task_with_status, run_spinner_in_bg
 from katello.client.lib.ui.progress import wait_for_async_task
 from katello.client.lib.ui.formatters import format_sync_errors, format_sync_time, format_sync_state
+from katello.client.lib.rpm_utils import generate_rpm_data
 
 
 ALLOWED_REPO_URL_SCHEMES = ("http", "https", "ftp", "file")
-
-# variables copied from pulp_rpm/src/pulp_rpm/extension/admin/upload/package.py
-RPMTAG_NOSOURCE = 1051
-CHECKSUM_READ_BUFFER_SIZE = 65536
 
 # base action ----------------------------------------------------------------
 
@@ -51,6 +45,7 @@ class RepoAction(BaseAction):
     def __init__(self):
         super(RepoAction, self).__init__()
         self.api = RepoAPI()
+        self.upload_api = ContentUploadAPI()
 
     @classmethod
     def get_groupid_param(cls, repo, param_name):
@@ -495,13 +490,13 @@ class Delete(SingleRepoAction):
 class ContentUpload(SingleRepoAction):
 
     description = _('upload content into a repository')
-    api = ContentUploadAPI()
 
     def setup_parser(self, parser):
         parser.add_option('--repo_id', dest='repo_id', help=_("repository ID (required)"))
         parser.add_option('--repo', dest='repo', help=_("repository name"))
         parser.add_option('--filepath', dest='filepath', help=_("path of file to upload (required)"))
-        #parser.add_option('--unit_type_id', dest='unit_type_id',help=_("unit_type_id (required)"))
+        parser.add_option('--chunk', dest='chunk',
+                          help=_("number of kilobytes to send to server at a time (default is 1024)"))
 
         opt_parser_add_org(parser, required=1)
         opt_parser_add_environment(parser, default="Library")
@@ -523,21 +518,36 @@ class ContentUpload(SingleRepoAction):
         prod_label = self.get_option('product_label')
         prod_id = self.get_option('product_id')
         filepath = self.get_option("filepath")
+        chunk = self.get_option("chunk")
 
         if not repo_id:
             repo = get_repo(org_name, repo_name, prod_name, prod_label, prod_id, env_name, False)
             repo_id = repo["id"]
 
-        unit_key, metadata = _generate_rpm_data(filepath)
+        unit_key, metadata = generate_rpm_data(filepath)
 
-        upload_id = self.api.create()["upload_id"]
+        upload_id = self.upload_api.create(repo_id)["upload_id"]
+        self.send_content(repo_id, upload_id, filepath, chunk)
+        self.upload_api.import_into_repo(repo_id, upload_id, unit_key, metadata)
+        self.upload_api.delete(repo_id, upload_id)
 
-        self.api.upload_bits(upload_id, offset, filepath)
-        self.api.import_into_repo(repo_id, unit_type_id, upload_id, unit_key, unit_metadata)
-        self.api.delete(upload_id)
-        self.api.list()
         print _("Successfully uploaded file into repository")
         return os.EX_OK
+
+    def send_content(self, repo_id, upload_id, filepath, chunk=None):
+        if not chunk:
+            chunk = 500000
+
+        with open(filepath, "rb") as f:
+            offset = 0
+            while True:
+                piece = f.read(chunk)
+
+                if piece == "":
+                    break  # end of file
+
+                self.upload_api.upload_bits(repo_id, upload_id, offset, piece)
+                offset += chunk
 
 
 # command --------------------------------------------------------------------
@@ -545,106 +555,3 @@ class ContentUpload(SingleRepoAction):
 class Repo(Command):
 
     description = _('repo specific actions in the katello server')
-
-
-# generate rpm metadata methods
-# adapted from pulp_rpm/src/pulp_rpm/extension/admin/upload/package.py
-
-def _generate_rpm_data(rpm_filename):
-    """
-    For the given RPM, analyzes its metadata to generate the appropriate unit
-    key and metadata fields, returning both to the caller.
-
-    This is performed client side instead of in the importer to get around
-    differences in RPMs between RHEL 5 and later versions of Fedora. We can't
-    guarantee the server will be able to properly read the RPM so it is
-    read client-side and the metadata passed in.
-
-    The obvious caveat is that the format of the returned values must match
-    what the importer would produce had this RPM been synchronized from an
-    external source.
-
-    @param rpm_filename: full path to the RPM to analyze
-    @type  rpm_filename: str
-
-    @return: tuple of unit key and unit metadata for the RPM
-    @rtype:  tuple
-    """
-
-    # Expected metadata fields:
-    # "vendor", "description", "buildhost", "license", "vendor", "requires", "provides", "relativepath", "filename"
-    #
-    # Expected unit key fields:
-    # "name", "epoch", "version", "release", "arch", "checksumtype", "checksum"
-
-    unit_key = dict()
-    metadata = dict()
-
-    # Read the RPM header attributes for use later
-    ts = rpm.TransactionSet()
-    ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES)
-    fd = os.open(rpm_filename, os.O_RDONLY)
-    try:
-        headers = ts.hdrFromFdno(fd)
-        os.close(fd)
-    except rpm.error:
-        # Raised if the headers cannot be read
-        os.close(fd)
-        msg = _('The given file is not a valid RPM')
-        raise Exception(msg), None, sys.exc_info()[2]
-
-    # -- Unit Key -----------------------
-
-    # Checksum
-    unit_key['checksumtype'] = 'sha256'  # hardcoded to this in v1 so leaving this way for now
-    unit_key['checksum'] = _calculate_checksum(unit_key['checksumtype'], rpm_filename)
-
-    # Name, Version, Release, Epoch
-    for k in ['name', 'version', 'release', 'epoch']:
-        unit_key[k] = headers[k]
-
-    #   Epoch munging
-    if unit_key['epoch'] is None:
-        unit_key['epoch'] = str(0)
-    else:
-        unit_key['epoch'] = str(unit_key['epoch'])
-
-    # Arch
-    if headers['sourcepackage']:
-        if RPMTAG_NOSOURCE in headers.keys():
-            unit_key['arch'] = 'nosrc'
-        else:
-            unit_key['arch'] = 'src'
-    else:
-        unit_key['arch'] = headers['arch']
-
-    # -- Unit Metadata ------------------
-
-    metadata['relativepath'] = os.path.basename(rpm_filename)
-    metadata['filename'] = os.path.basename(rpm_filename)
-
-    # This format is, and has always been, incorrect. As of the new yum importer, the
-    # plugin will generate these from the XML snippet because the API into RPM headers
-    # is atrocious. This is the end game for this functionality anyway, moving all of
-    # that metadata derivation into the plugin, so this is just a first step.
-    # I'm leaving these in and commented to show how not to do it.
-    # metadata['requires'] = [(r,) for r in headers['requires']]
-    # metadata['provides'] = [(p,) for p in headers['provides']]
-
-    metadata['buildhost'] = headers['buildhost']
-    metadata['license'] = headers['license']
-    metadata['vendor'] = headers['vendor']
-    metadata['description'] = headers['description']
-
-    return unit_key, metadata
-
-def _calculate_checksum(checksum_type, filename):
-    m = hashlib.new(checksum_type)
-    f = open(filename, 'r')
-    while 1:
-        file_buffer = f.read(CHECKSUM_READ_BUFFER_SIZE)
-        if not file_buffer:
-            break
-    m.update(file_buffer)
-    f.close()
-    return m.hexdigest()
