@@ -213,6 +213,8 @@ class Update(UserAction):
             default_environment = self.get_option('default_environment')
         elif default_organization is not None:
             default_environment = 'Library'
+        else:
+            default_environment = None
         no_default_environment = self.get_option('no_default_environment')
         default_locale = self.get_option('default_locale')
 
