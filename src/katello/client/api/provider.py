@@ -114,7 +114,3 @@ class ProviderAPI(KatelloAPI):
         path = "/api/providers/%s/refresh_products" % u_str(provId)
         return self.server.POST(path, {})[1]
 
-    def repo_discovery(self, provId, url):
-        path = "/api/providers/%s/discovery" % provId
-        return self.server.POST(path, {'url':url})[1]
-
