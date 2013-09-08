@@ -65,6 +65,8 @@ class Create(UserAction):
         self.about_api = AboutAPI()
 
     def setup_parser(self, parser):
+        mode = get_katello_mode()
+
         parser.add_option('--username', dest='username', help=_("user name (required)"))
         parser.add_option('--password', dest='password', help=_("initial password (required)"))
         parser.add_option('--email', dest='email', help=_("email (required)"))
@@ -72,7 +74,8 @@ class Create(UserAction):
             help=_("disabled account (default is 'false')"), default=False)
         parser.add_option('--default_organization', dest='default_organization',
                                help=_("user's default organization name"))
-        parser.add_option('--default_environment', dest='default_environment',
+        if mode == 'katello':
+            parser.add_option('--default_environment', dest='default_environment',
                                help=_("user's default environment name"))
         parser.add_option('--default_locale', dest='default_locale',
                                help=_("user's default locale"))
@@ -174,7 +177,7 @@ class Update(UserAction):
                                help=_("user's default organization name"))
         if mode == 'katello':
             parser.add_option('--default_environment', dest='default_environment',
-                                   help=_("user's default environment name"))
+                               help=_("user's default environment name"))
         parser.add_option('--no_default_environment', dest='no_default_environment', action="store_true",
                                help=_("user's default environment is None"))
         parser.add_option('--default_locale', dest='default_locale',
