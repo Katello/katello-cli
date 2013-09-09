@@ -3,8 +3,7 @@
 # Copyright 2013 Red Hat, Inc.
 #
 # This software is licensed to you under the GNU General Public License,
-# version 2 (GPLv2). There is NO WARRANTY for this software, express or
-# implied, including the implied warranties of MERCHANTABILITY or FITNESS
+# version 2 (GPLv2). There is NO WARRANTY for this software, express or # implied, including the implied warranties of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE. You should have received a copy of GPLv2
 # along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
@@ -34,6 +33,7 @@ from katello.client.lib.ui.progress import ProgressBar, run_async_task_with_stat
 from katello.client.lib.ui.progress import wait_for_async_task
 from katello.client.lib.ui.formatters import format_sync_errors, format_sync_time, format_sync_state
 from katello.client.lib.rpm_utils import generate_rpm_data
+from katello.client.lib.puppet_utils import generate_puppet_data
 
 
 ALLOWED_REPO_URL_SCHEMES = ("http", "https", "ftp", "file")
@@ -495,15 +495,17 @@ class ContentUpload(SingleRepoAction):
         parser.add_option('--repo_id', dest='repo_id', help=_("repository ID (required)"))
         parser.add_option('--repo', dest='repo', help=_("repository name"))
         parser.add_option('--filepath', dest='filepath', help=_("path of file to upload (required)"))
+        parser.add_option('--content_type', dest='content_type',
+                          help=_("type of content to upload (puppet or yum, required)"))
         parser.add_option('--chunk', dest='chunk',
-                          help=_("number of kilobytes to send to server at a time (default is 1024)"))
+                          help=_("number of bytes to send to server at a time (default is 500000)"))
 
         opt_parser_add_org(parser, required=1)
         opt_parser_add_environment(parser, default="Library")
         opt_parser_add_product(parser)
 
     def check_options(self, validator):
-        validator.require('filepath')
+        validator.require(('filepath', 'content_type'))
         if not validator.exists('repo_id'):
             validator.require(('repo', 'org'))
             validator.require_at_least_one_of(('product', 'product_label', 'product_id'))
@@ -518,13 +520,20 @@ class ContentUpload(SingleRepoAction):
         prod_label = self.get_option('product_label')
         prod_id = self.get_option('product_id')
         filepath = self.get_option("filepath")
+        content_type = self.get_option("content_type")
         chunk = self.get_option("chunk")
 
         if not repo_id:
             repo = get_repo(org_name, repo_name, prod_name, prod_label, prod_id, env_name, False)
             repo_id = repo["id"]
 
-        unit_key, metadata = generate_rpm_data(filepath)
+        if content_type == "yum":
+            unit_key, metadata = generate_rpm_data(filepath)
+        elif content_type == "puppet":
+            unit_key, metadata = generate_puppet_data(filepath)
+        else:
+            print _("Content type '%s' not valid. Must be puppet or yum.") % content_type
+            return os.EX_DATAERR
 
         upload_id = self.upload_api.create(repo_id)["upload_id"]
         self.send_content(repo_id, upload_id, filepath, chunk)
