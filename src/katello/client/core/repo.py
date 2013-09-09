@@ -19,8 +19,7 @@ import urlparse
 
 from katello.client import constants
 from katello.client.api.repo import RepoAPI
-from katello.client.api.provider import ProviderAPI
-from katello.client.api.utils import get_provider
+from katello.client.api.organization import OrganizationAPI
 from katello.client.api.utils import get_environment, get_product, get_repo
 from katello.client.cli.base import opt_parser_add_product, opt_parser_add_org, opt_parser_add_environment
 from katello.client.core.base import BaseAction, Command
@@ -154,12 +153,10 @@ class Discovery(RepoAction):  # pylint: disable=R0904
     #TODO: temporary pylint disable, we need to refactor the class later
 
     description = _('discovery repositories contained within a URL')
-    provider_api = ProviderAPI()
+    org_api = OrganizationAPI()
 
     def setup_parser(self, parser):
         opt_parser_add_org(parser, required=1)
-        parser.add_option('--provider', dest='provider',
-            help=_("provider name (required)"))
         parser.add_option('--name', dest='name',
             help=_("repository name prefix to add to all the discovered repositories (required)"))
         parser.add_option('--label', dest='label',
@@ -174,7 +171,7 @@ class Discovery(RepoAction):  # pylint: disable=R0904
         opt_parser_add_product(parser, required=1)
 
     def check_options(self, validator):
-        validator.require(('name', 'org', 'url', 'provider'))
+        validator.require(('name', 'org', 'url'))
         validator.require_at_least_one_of(('product', 'product_label', 'product_id'))
         validator.mutually_exclude('product', 'product_label', 'product_id')
 
@@ -183,15 +180,13 @@ class Discovery(RepoAction):  # pylint: disable=R0904
         label    = self.get_option('label')
         url      = self.get_option('url')
         assumeyes = self.get_option('assumeyes')
-        providerName   = self.get_option('provider')
         prodName = self.get_option('product')
         prodLabel = self.get_option('product_label')
         prodId   = self.get_option('product_id')
         orgName  = self.get_option('org')
         unprotected = self.get_option('unprotected')
 
-        prov_id = get_provider(orgName, providerName)['id']
-        repourls = self.discover_repositories(prov_id, url)
+        repourls = self.discover_repositories(orgName, url)
         self.printer.set_header(_("Repository Urls discovered @ [%s]" % url))
         selectedurls = self.select_repositories(repourls, assumeyes)
 
@@ -200,12 +195,12 @@ class Discovery(RepoAction):  # pylint: disable=R0904
 
         return os.EX_OK
 
-    def discover_repositories(self, provider_id, url):
+    def discover_repositories(self, orgName, url):
         print(_("Discovering repository urls, this could take some time..."))
-        task = self.provider_api.repo_discovery(provider_id, url)
+        task = self.org_api.repo_discovery(orgName, url)
 
-        run_spinner_in_bg(wait_for_async_task, [task])
-        repourls = self.provider_api.provider(provider_id)['discovered_repos']
+        tasks = run_spinner_in_bg(wait_for_async_task, [task])
+        repourls = tasks[0]['result']
 
         if not len(repourls):
             system_exit(os.EX_OK, "No repositories discovered @ url location [%s]" % url)

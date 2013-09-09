@@ -18,11 +18,11 @@ class RequiredCLIOptionsTests(CLIOptionTestCase):
     ]
 
     allowed_options = [
-        ('--org=ACME', '--name=repo1', '--url=http://localhost', '--product=product1', '--provider=foo'),
-        ('--org=ACME', '--name=repo1', '--url=https://localhost', '--product=product1', '--provider=foo'),
-        ('--org=ACME', '--name=repo1', '--url=ftp://localhost', '--product=product1', '--provider=foo'),
-        ('--org=ACME', '--name=repo1', '--url=file:///a/b/c/', '--product=product1', '--provider=foo'),
-        ('--org=ACME', '--name=repo1', '--url=file:///a/b/c/', '--product=product1', '--provider=foo', '--unprotected'),
+        ('--org=ACME', '--name=repo1', '--url=http://localhost', '--product=product1'),
+        ('--org=ACME', '--name=repo1', '--url=https://localhost', '--product=product1'),
+        ('--org=ACME', '--name=repo1', '--url=ftp://localhost', '--product=product1'),
+        ('--org=ACME', '--name=repo1', '--url=file:///a/b/c/', '--product=product1'),
+        ('--org=ACME', '--name=repo1', '--url=file:///a/b/c/', '--product=product1', '--unprotected'),
     ]
 
 
@@ -31,8 +31,6 @@ class RepoDiscoveryTest(CLIActionTestCase):
     DISCOVERY_TASK = {}
     URL = 'http://localhost'
     ORG = 'ACME'
-    PROVIDER = 'provider'
-    PROVIDER_ID = '3'
     URLS = ['http://localhost/foo']
     def setUp(self):
         self.set_action(Discovery())
@@ -40,23 +38,22 @@ class RepoDiscoveryTest(CLIActionTestCase):
 
         self.mock(self.module, 'run_spinner_in_bg', [self.RESULT])
         self.mock(self.module, 'system_exit')
-        self.mock(self.action.provider_api, 'provider', {'id':self.PROVIDER_ID, 'discovered_repos':self.URLS})
-        self.mock(self.action.provider_api, 'repo_discovery', self.DISCOVERY_TASK)
+        self.mock(self.action.org_api, 'repo_discovery', self.DISCOVERY_TASK)
 
     def tearDown(self):
         self.restore_mocks()
 
     def test_performs_pulp_repo_discovery(self):
-        self.action.discover_repositories(self.PROVIDER_ID, self.URL)
-        self.action.provider_api.repo_discovery.assert_called_once_with(self.PROVIDER_ID, self.URL)
+        self.action.discover_repositories(self.ORG, self.URL)
+        self.action.org_api.repo_discovery.assert_called_once_with(self.ORG, self.URL)
 
     def test_polls_pulp(self):
-        self.action.discover_repositories(self.PROVIDER, self.URL)
+        self.action.discover_repositories(self.ORG, self.URL)
         self.module.run_spinner_in_bg.assert_called_once_with(self.module.wait_for_async_task, [self.DISCOVERY_TASK])
 
     def test_exit_when_no_repos_were_discovered(self):
         self.module.run_spinner_in_bg.return_value = [self.RESULT]
-        self.action.discover_repositories(self.PROVIDER, self.URL)
+        self.action.discover_repositories(self.ORG, self.URL)
         self.module.system_exit.assert_called_once
 
 

@@ -56,3 +56,8 @@ class OrganizationAPI(KatelloAPI):
     def attach_all_systems(self, name):
         path = "/api/organizations/%s/auto_attach" % u_str(name)
         return self.server.POST(path, "")[1]
+
+    def repo_discovery(self, orgId, url):
+        path = "/api/organizations/%s/repo_discover" % orgId
+        return self.server.POST(path, {'url':url})[1]
+
