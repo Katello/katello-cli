@@ -25,12 +25,12 @@ class ProgressBar(object):
 
     @classmethod
     def update_progress(cls, progress_in):
-        sys.stdout.write("\rProgress: [{0:50s}] {1:.1f}%".format('#' * int(progress_in * 50), progress_in * 100))
+        sys.stdout.write("\rProgress: [%-50s] %.1f%%" % ('#' * int(progress_in * 50), progress_in * 100))
         sys.stdout.flush()
 
     @classmethod
     def done(cls):
-        sys.stdout.write("\r{0:60s}\r".format(' '*70))
+        sys.stdout.write("\r%60s\r" % (' ' * 70))
 
 
 class Spinner(threading.Thread):
