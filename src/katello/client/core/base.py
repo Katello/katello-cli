@@ -109,7 +109,7 @@ class Action(object):
         first_line += " "
         first_line += command_name or ""
         if self.takes_options:
-            first_line += " <{0}>".format(_("options"))
+            first_line += " %s" % _("options")
         return first_line
 
     def usage(self, command_name=None, parent_usage=None):
@@ -265,7 +265,7 @@ class Command(CommandContainer, Action):
         """
         first_line = _("Usage: ") + self._get_usage_line(command_name, parent_usage)
         if len(self.get_command_names()) > 0:
-            first_line += " <{0}>".format(_("command"))
+            first_line += " %s" % _("command")
 
         lines = [first_line, _("Supported Commands:")]
         for name in sorted(self.get_command_names()):

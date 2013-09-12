@@ -159,7 +159,7 @@ class VerboseStrategy(PrinterStrategy):
                 if not isinstance(value, (list, tuple)):
                     value = [value]
                 for v in value:
-                    self._println(("{0:<" + u_str(col_width) + "} : {1}").format(u_str(column['name']), u_str(v)))
+                    self._println(("%-" + u_str(col_width) + "s : %s") % (u_str(column['name']), u_str(v)))
             else:
                 self._println(column['name'] + ":")
                 self._println(indent_text(value, "    "))
