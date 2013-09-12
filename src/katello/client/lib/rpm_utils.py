@@ -21,6 +21,7 @@ import sys
 
 # generate rpm metadata methods
 # adapted from pulp_rpm/src/pulp_rpm/extension/admin/upload/package.py
+# pylint: disable-all
 
 RPMTAG_NOSOURCE = 1051
 CHECKSUM_READ_BUFFER_SIZE = 65536
