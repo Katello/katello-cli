@@ -55,7 +55,7 @@ class ContentUploadTest(CLIActionTestCase):
         self.run_action()
         self.action.upload_api.create.assert_called_once_with(repo_id)
         self.module.generate_rpm_data.assert_called_once()
-        self.action.upload_api.upload_bits.assert_called_once()
+        self.action.send_content.assert_called_once_with(repo_id, content_upload["upload_id"], options["filepath"], None)
         self.action.upload_api.import_into_repo.assert_called_once()
         self.action.upload_api.delete.assert_called_once_with(repo_id, content_upload['upload_id'])
 
@@ -77,7 +77,7 @@ class ContentUploadTest(CLIActionTestCase):
         self.run_action()
         self.action.upload_api.create.assert_called_once_with(repo_id)
         self.module.generate_puppet_data.assert_called_once()
-        self.action.upload_api.upload_bits.assert_called_once()
+        self.action.send_content.assert_called_once_with(repo_id, content_upload["upload_id"], options["filepath"], None)
         self.action.upload_api.import_into_repo.assert_called_once()
         self.action.upload_api.delete.assert_called_once_with(repo_id, content_upload['upload_id'])
 
@@ -101,7 +101,7 @@ class ContentUploadTest(CLIActionTestCase):
         self.mock_options(options)
         self.mock(self.module, 'get_repo', {'id': repo_id})
         self.mock(self.action.upload_api, 'create', content_upload)
-        self.mock(self.action.upload_api, 'upload_bits', None)
+        self.mock(self.action, 'send_content', None)
         self.mock(self.action.upload_api, 'import_into_repo', content_upload)
         self.mock(self.action.upload_api, 'delete', content_upload)
 
