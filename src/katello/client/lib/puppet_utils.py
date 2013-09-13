@@ -21,6 +21,7 @@ import re
 
 # generate rpm metadata methods
 # adapted from pulp_puppet_plugins/pulp_puppet/plugins/importers/metadata.py
+# pylint: disable-all
 
 
 class ExtractionException(Exception):
