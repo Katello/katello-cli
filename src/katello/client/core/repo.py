@@ -45,7 +45,6 @@ class RepoAction(BaseAction):
     def __init__(self):
         super(RepoAction, self).__init__()
         self.api = RepoAPI()
-        self.upload_api = ContentUploadAPI()
 
     @classmethod
     def get_groupid_param(cls, repo, param_name):
@@ -488,6 +487,10 @@ class Delete(SingleRepoAction):
 
 
 class ContentUpload(SingleRepoAction):
+
+    def __init__(self):
+        super(ContentUpload, self).__init__()
+        self.upload_api = ContentUploadAPI()
 
     description = _('upload content into a repository')
 
