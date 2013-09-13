@@ -19,8 +19,17 @@ import rpm
 import hashlib
 import sys
 
-# generate rpm metadata methods
-# adapted from pulp_rpm/src/pulp_rpm/extension/admin/upload/package.py
+# WARNING: THIS CODE IS COPY-PASTED FROM PULP!
+
+#
+# Generate rpm metadata methods
+# Copied from pulp_rpm/src/pulp_rpm/extension/admin/upload/package.py
+#
+# This code will be removed once pulp no longer requires unit_key/unit_metadata
+# to be passed in via its API.
+#
+# The only thing I've changed here is the exceptions.
+#
 # pylint: disable-all
 
 RPMTAG_NOSOURCE = 1051

@@ -19,8 +19,18 @@ import sys
 import tarfile
 import re
 
-# generate rpm metadata methods
+# WARNING: THIS CODE IS COPY-PASTED FROM PULP!
+
+# Generate puppet metadata methods
 # adapted from pulp_puppet_plugins/pulp_puppet/plugins/importers/metadata.py
+#
+# This code will be removed once pulp no longer requires unit_key/unit_metadata
+# to be passed in via its API.
+#
+# The things I changed were the exceptions (there was a pulp exception that we
+# didn't have). And also I created generate_puppet_data based on
+# extract_metadata and extract_json. It doesn't require a temp_dir path.
+#
 # pylint: disable-all
 
 
