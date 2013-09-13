@@ -1,5 +1,5 @@
 #!/bin/bash
-sudo apt-get install libssl-dev m2crypto
+sudo apt-get install libssl-dev m2crypto python-rpm
 sudo pip install -r requirements-dev.pip --use-mirrors
 
 echo ""

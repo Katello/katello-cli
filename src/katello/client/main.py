@@ -161,6 +161,7 @@ def setup_admin(katello_cmd, mode=get_katello_mode()):
         repo_cmd.add_command('cancel_sync', repo.CancelSync())
         repo_cmd.add_command('enable', repo.Enable(True))
         repo_cmd.add_command('disable', repo.Enable(False))
+        repo_cmd.add_command('content_upload', repo.ContentUpload())
         katello_cmd.add_command('repo', repo_cmd)
 
     if mode == 'katello':

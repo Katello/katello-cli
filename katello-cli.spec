@@ -48,6 +48,7 @@ License:       GPLv2
 Requires:      %{katello_requires}
 BuildRequires: python2-devel
 BuildRequires: gettext
+BuildRequires: rpm-python
 BuildRequires: /usr/bin/pod2man
 BuildRequires: %{katello_requires}
 
