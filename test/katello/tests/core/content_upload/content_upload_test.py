@@ -6,6 +6,7 @@ from katello.tests.core.action_test_utils import CLIOptionTestCase, CLIActionTes
 import katello.client.core.repo
 from katello.client.core.repo import ContentUpload
 
+
 class RequiredCLIOptionsTests(CLIOptionTestCase):
 
     action = ContentUpload()
@@ -36,11 +37,12 @@ class ContentUploadTest(CLIActionTestCase):
         self.mock_printer()
         self.mock(self.module, 'generate_puppet_data', [{}, {}])
         self.mock(self.module, 'generate_rpm_data', [{}, {}])
+        self.mock(os.path, 'isfile', True)
 
     def test_yum_content_upload(self):
         content_upload = CONTENT_UPLOADS[0]
 
-        options  = {
+        options = {
             'upload_id': content_upload['upload_id'],
             'filepath': '/tmp/bear-4.1-1.noarch.rpm',
             'content_type': 'yum',
@@ -62,9 +64,32 @@ class ContentUploadTest(CLIActionTestCase):
     def test_puppet_content_upload(self):
         content_upload = CONTENT_UPLOADS[1]
 
-        options  = {
+        options = {
             'upload_id': content_upload['upload_id'],
             'filepath': '/tmp/jdob-valid-1.1.0.tar.gz',
+            'content_type': 'puppet',
+            'repo': 'pforge',
+            'product': 'puppet',
+            'org': 'acme'
+        }
+
+        repo_id = 5
+        self._setup_mocks(options, repo_id, content_upload)
+
+        self.run_action()
+        self.action.upload_api.create.assert_called_once_with(repo_id)
+        self.module.generate_puppet_data.assert_called_once()
+        self.action.send_content.assert_called_once_with(repo_id, content_upload["upload_id"], options["filepath"], None)
+        self.action.upload_api.import_into_repo.assert_called_once()
+        self.action.upload_api.delete.assert_called_once_with(repo_id, content_upload['upload_id'])
+
+    def test_dir_content_upload(self):
+        content_upload = CONTENT_UPLOADS[1]
+        puppet_dir = os.path.join(os.getcwd(), 'test/files/puppet')
+
+        options = {
+            'upload_id': content_upload['upload_id'],
+            'filepath': puppet_dir,
             'content_type': 'puppet',
             'repo': 'pforge',
             'product': 'puppet',
@@ -104,4 +129,3 @@ class ContentUploadTest(CLIActionTestCase):
         self.mock(self.action, 'send_content', None)
         self.mock(self.action.upload_api, 'import_into_repo', content_upload)
         self.mock(self.action.upload_api, 'delete', content_upload)
-

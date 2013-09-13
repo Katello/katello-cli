@@ -550,7 +550,7 @@ class ContentUpload(SingleRepoAction):
 
         paths = []
         if os.path.isdir(filepath):
-            for dirname, _, filenames in os.walk(filepath):
+            for dirname, __, filenames in os.walk(filepath):
                 paths = [os.path.join(dirname, filename) for filename in filenames]
         elif os.path.isfile(filepath):
             paths = [filepath]
