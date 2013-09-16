@@ -14,6 +14,7 @@
 # in this software or its documentation.
 #
 
+import json
 import os
 import sys
 import tarfile
@@ -97,7 +98,8 @@ def generate_puppet_data(filename):
     temp_filename = os.path.join(temp_dir, metadata_file_path)
     contents = _read_contents(temp_filename)
     unit_key = {"author": author, "name": name, "version": version}
-    return unit_key, contents
+    metadata = json.loads(contents)
+    return unit_key, metadata
 
 
 def _read_contents(filename):
