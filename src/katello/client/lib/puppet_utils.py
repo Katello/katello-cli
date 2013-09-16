@@ -15,9 +15,10 @@
 #
 
 import os
+import re
 import sys
 import tarfile
-import re
+import tempfile
 
 # WARNING: THIS CODE IS COPY-PASTED FROM PULP!
 
@@ -67,7 +68,7 @@ def generate_puppet_data(filename):
     :raise InvalidTarball: if the module file cannot be opened
     :raise MissingModuleFile: if the module's metadata file cannot be found
     """
-    temp_dir = os.path.dirname(filename)
+    temp_dir = tempfile.gettempdir()
 
     data = re.match('^(.+)?-(.+)?-(.+)?\.tar\.gz$', os.path.basename(filename))
     if data is None:

@@ -514,7 +514,8 @@ class ContentUpload(SingleRepoAction):
     def setup_parser(self, parser):
         parser.add_option('--repo_id', dest='repo_id', help=_("repository ID (required)"))
         parser.add_option('--repo', dest='repo', help=_("repository name"))
-        parser.add_option('--filepath', dest='filepath', help=_("path of file to upload (required)"))
+        parser.add_option('--filepath', dest='filepath',
+                          help=_("path of file or directory of files to upload (required)"))
         parser.add_option('--content_type', dest='content_type',
                           help=_("type of content to upload (puppet or yum, required)"))
         parser.add_option('--chunk', dest='chunk',
@@ -547,20 +548,40 @@ class ContentUpload(SingleRepoAction):
             repo = get_repo(org_name, repo_name, prod_name, prod_label, prod_id, env_name, False)
             repo_id = repo["id"]
 
+        paths = []
+        if os.path.isdir(filepath):
+            for dirname, __, filenames in os.walk(filepath):
+                paths = [os.path.join(dirname, filename) for filename in filenames]
+        elif os.path.isfile(filepath):
+            paths = [filepath]
+        else:
+            print _("Invalid path '%s'.") % filepath
+            return os.EX_DATAERR
+
+        for path in paths:
+            try:
+                self.send_file(path, repo_id, content_type, chunk)
+            except FileUploadError:
+                if len(paths) > 1:
+                    print _("Skipping file '%s'.") % path
+
+        return os.EX_OK
+
+    def send_file(self, filepath, repo_id, content_type, chunk):
+        filename = os.path.basename(filepath)
         unit_key, metadata = ContentUpload.get_content_data(content_type, filepath)
 
         if unit_key is None and metadata is None:
-            return os.EX_DATAERR
+            raise FileUploadError
 
         upload_id = self.upload_api.create(repo_id)["upload_id"]
         self.send_content(repo_id, upload_id, filepath, chunk)
         run_spinner_in_bg(self.upload_api.import_into_repo,
                           [repo_id, upload_id, unit_key, metadata],
-                          message=_("Uploading file to server, please... "))
+                          message=_("Uploading '%s' to server, please... ") % filename)
         self.upload_api.delete(repo_id, upload_id)
 
-        print _("Successfully uploaded file into repository")
-        return os.EX_OK
+        print _("Successfully uploaded '%s' into repository") % filename
 
     def send_content(self, repo_id, upload_id, filepath, chunk=None):
         if not chunk:
@@ -583,3 +604,7 @@ class ContentUpload(SingleRepoAction):
 class Repo(Command):
 
     description = _('repo specific actions in the katello server')
+
+
+class FileUploadError(Exception):
+    pass
