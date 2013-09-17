@@ -148,7 +148,9 @@ class Info(FilterAction):
 class Create(FilterAction):
     description = _('create a filter')
     def setup_parser(self, parser):
-        self._add_get_filter_opts(parser)
+        FilterAction._add_cvd_filter_opts(parser)
+        parser.add_option('--name', dest='name',
+                help=_("filter name eg: 'package filter acme'"))
         opt_parser_add_org(parser, required=1)
 
     def check_options(self, validator):
