@@ -77,8 +77,6 @@ class Info(ChangesetAction):
         opt_parser_add_org(parser, required=1)
         opt_parser_add_environment(parser, required=1)
         parser.add_option('--name', dest='name', help=_("changeset name (required)"))
-        parser.add_option('--dependencies', dest='deps', action='store_true',
-                               help=_("will display dependent packages"))
 
     def check_options(self, validator):
         validator.require(('org', 'name', 'environment'))
@@ -87,23 +85,16 @@ class Info(ChangesetAction):
     def format_item_list(cls, key, items):
         return "\n".join([i[key] for i in items])
 
-    def get_dependencies(self, cset_id):
-        deps = self.api.dependencies(cset_id)
-        return self.format_item_list('display_name', deps)
-
     def run(self):
         orgName = self.get_option('org')
         envName = self.get_option('environment')
         csName = self.get_option('name')
-        displayDeps = self.has_option('deps')
 
         cset = get_changeset(orgName, envName, csName)
 
         cset['environment_name'] = envName
-
         cset["content_views"] = self.format_item_list("name", cset["content_views"])
-        if displayDeps:
-            cset["dependencies"] = self.get_dependencies(cset["id"])
+
         batch_add_columns(self.printer, {'id': _("ID")}, {'name': _("Name")}, {'action_type': _("Action Type")})
         self.printer.add_column('description', _("Description"), multiline=True, show_with=printer.VerboseStrategy)
         self.printer.add_column('updated_at', _("Last Updated"), formatter=format_date)
@@ -111,9 +102,6 @@ class Info(ChangesetAction):
             {'environment_id': _("Environment ID")}, {'environment_name': _("Environment Name")})
         batch_add_columns(self.printer, {'content_views': _("Content Views")},
             multiline=True, show_with=printer.VerboseStrategy)
-        if displayDeps:
-            self.printer.add_column('dependencies', _("Dependencies"), \
-                multiline=True, show_with=printer.VerboseStrategy)
 
         self.printer.set_header(_("Changeset Info"))
         self.printer.print_item(cset)
