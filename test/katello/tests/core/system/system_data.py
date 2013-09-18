@@ -49,6 +49,17 @@ SYSTEM_GROUP_HISTORY = [
   }
 ]
 
+SYSTEM_GROUP_SYSTEMS = [
+  {
+    "id": "d49f6d91-0bb3-43f0-9881-dc051fa818c7",
+    "name": "FakeSystem345"
+  },
+  {
+    "id": "92eb02a6-0d33-4f89-885c-55aebedaf0e1",
+    "name": "Winterfell"
+  }
+]
+
 SYSTEMS = [
   {
     "guests": [

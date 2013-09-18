@@ -20,7 +20,7 @@ from katello.client.cli.base import opt_parser_add_org, \
 from katello.client.core.base import BaseAction, Command
 from katello.client.api.system_group import SystemGroupAPI
 from katello.client.api.utils import get_system_group, get_environment, \
-    get_content_view
+    get_content_view, get_systems
 from katello.client.lib.utils.data import test_record
 from katello.client.lib.async import SystemGroupAsyncJob, evaluate_remote_action
 from katello.client.lib.ui.progress import run_spinner_in_bg, wait_for_async_task
@@ -361,13 +361,49 @@ class AddSystems(SystemGroupAction):
 
         system_group = get_system_group(org_name, name)
 
-        systems = self.api.add_systems(org_name, system_group["id"], system_ids)
+        # confirm that the requested systems exist
+        get_systems(org_name, system_ids)
 
-        if systems != None:
-            print _("Successfully added systems to system group [ %s ]") % system_group['name']
+        # retrieve the current system group members
+        systems = self.api.system_group_systems(org_name, system_group['id'])
+        initial_system_ids = [system['id'] for system in systems]
+
+        # filter out existing members, so that only new members are added
+        add_system_ids = []
+        existing_system_ids = []
+        for system_id in system_ids:
+            if system_id in initial_system_ids:
+                existing_system_ids.append(system_id)
+            else:
+                add_system_ids.append(system_id)
+
+        if len(add_system_ids) == 0:
+            system_id_str = ', '.join(system_id for system_id in existing_system_ids)
+            print _("Systems [ %(system_uuids)s ] are already members of the " \
+                "system group; therefore, no changes were made to system group " \
+                "[ %(system_group_name)s ].") % \
+                {'system_uuids':system_id_str, 'system_group_name':system_group['name']}
+
             return os.EX_OK
+
         else:
-            return os.EX_DATAERR
+            systems = self.api.add_systems(org_name, system_group["id"], add_system_ids)
+
+            if systems is not None:
+                system_id_str = ', '.join(system_id for system_id in add_system_ids)
+                print _("Successfully added systems [ %(system_uuids)s ] to " \
+                    "system group [ %(system_group_name)s ].") % \
+                    {'system_uuids':system_id_str, 'system_group_name':system_group['name']}
+
+                if len(existing_system_ids) > 0:
+                    system_id_str = ', '.join(system_id for system_id in existing_system_ids)
+                    print _("Note: Systems [ %(system_uuids)s ] were already members " \
+                        "of the system group; therefore, no changes were made " \
+                        "for them.") % {'system_uuids':system_id_str}
+
+                return os.EX_OK
+            else:
+                return os.EX_DATAERR
 
 
 class RemoveSystems(SystemGroupAction):
@@ -391,13 +427,51 @@ class RemoveSystems(SystemGroupAction):
 
         system_group = get_system_group(org_name, name)
 
-        systems = self.api.remove_systems(org_name, system_group["id"], system_ids)
+        # confirm that the requested systems exist
+        get_systems(org_name, system_ids)
 
-        if systems != None:
-            print _("Successfully removed systems from system group [ %s ]") % system_group['name']
+        # retrieve the current system group members
+        systems = self.api.system_group_systems(org_name, system_group['id'])
+        initial_system_ids = [system['id'] for system in systems]
+
+        # filter out systems that aren't currently members, so that only
+        # existing members are removed
+        remove_system_ids = []
+        non_existing_system_ids = []
+        for system_id in system_ids:
+            if system_id not in initial_system_ids:
+                non_existing_system_ids.append(system_id)
+            else:
+                remove_system_ids.append(system_id)
+
+        if len(remove_system_ids) == 0:
+            system_id_str = ', '.join(system_id for system_id in non_existing_system_ids)
+            print _("Systems [ %(system_uuids)s ] are not members of the " \
+                "system group; therefore, no changes were made to system group " \
+                "[ %(system_group_name)s ].") % \
+                {'system_uuids':system_id_str, 'system_group_name':system_group['name']}
+
             return os.EX_OK
+
         else:
-            return os.EX_DATAERR
+
+            systems = self.api.remove_systems(org_name, system_group["id"], system_ids)
+
+            if systems is not None:
+                system_id_str = ', '.join(system_id for system_id in remove_system_ids)
+                print _("Successfully removed systems [ %(system_uuids)s ] from " \
+                    "system group [ %(system_group_name)s ].") % \
+                    {'system_uuids':system_id_str, 'system_group_name':system_group['name']}
+
+                if len(non_existing_system_ids) > 0:
+                    system_id_str = ', '.join(system_id for system_id in non_existing_system_ids)
+                    print _("Note: Systems [ %(system_uuids)s ] were not members " \
+                        "of the system group; therefore, no changes were made " \
+                        "for them.") % {'system_uuids':system_id_str}
+
+                return os.EX_OK
+            else:
+                return os.EX_DATAERR
 
 class Packages(SystemGroupAction):
 

@@ -33,11 +33,13 @@ class SystemGroupRemoveSystemsTest(CLIActionTestCase):
 
     ORG = organization_data.ORGS[0]
     SYSTEM_GROUP = system_data.SYSTEM_GROUPS[1]
+    SYSTEM_GROUP_SYSTEMS = system_data.SYSTEM_GROUP_SYSTEMS
+    SYSTEMS = system_data.SYSTEMS
 
     OPTIONS = {
         'org': ORG['name'],
         'name': SYSTEM_GROUP['name'],
-        'system_uuids' : ['fgadg3943-daf323','34ad5-34ad3-h6ddss4']
+        'system_uuids' : [SYSTEMS[0]['uuid'], SYSTEMS[1]['uuid']]
     }
 
     def setUp(self):
@@ -49,14 +51,16 @@ class SystemGroupRemoveSystemsTest(CLIActionTestCase):
 
         self.mock(self.action.api, 'remove_systems', self.SYSTEM_GROUP)
         self.mock(self.module, 'get_system_group', self.SYSTEM_GROUP)
+        self.mock(self.module, 'get_systems', self.SYSTEMS)
+        self.mock(self.action.api, 'system_group_systems', self.SYSTEM_GROUP_SYSTEMS)
 
     def test_it_calls_system_group_remove_systems_api(self):
         self.action.run()
         self.action.api.remove_systems.assert_called_once_with(self.OPTIONS['org'], self.SYSTEM_GROUP['id'], self.OPTIONS['system_uuids'])
 
-    def test_it_returns_error_when_adding_failed(self):
+    def test_it_returns_error_when_removing_failed(self):
         self.mock(self.action.api, 'remove_systems', None)
         self.assertEqual(self.action.run(), os.EX_DATAERR)
 
-    def test_it_success_on_successful_add_of_systems(self):
+    def test_it_success_on_successful_remove_of_systems(self):
         self.assertEqual(self.action.run(), os.EX_OK)

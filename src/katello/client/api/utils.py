@@ -284,6 +284,25 @@ def get_system(org_name, sys_name, env_name=None, sys_uuid=None):
 
     return system_api.system(systems[0]['uuid'])
 
+def get_systems(org_name, sys_uuids):
+    invalid_sys_uuids = []
+    systems = []
+
+    for sys_uuid in sys_uuids:
+        try:
+            system = get_system(org_name, None, None, sys_uuid)
+            systems.append(system)
+
+        except ApiDataError:
+            invalid_sys_uuids.append(sys_uuid)
+
+    if len(invalid_sys_uuids) > 0:
+        raise ApiDataError(_("Could not find Systems [ %(sys_uuids)s ] in Org [ %(org_name)s ]") \
+            % {'sys_uuids':', '.join(sys_uuid for sys_uuid in invalid_sys_uuids),
+               'org_name':org_name})
+
+    return systems
+
 def get_distributor(org_name, dist_name, env_name=None, dist_uuid=None):
     distributor_api = DistributorAPI()
     if dist_uuid:
