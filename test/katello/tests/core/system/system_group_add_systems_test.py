@@ -33,11 +33,12 @@ class SystemGroupAddSystemsTest(CLIActionTestCase):
 
     ORG = organization_data.ORGS[0]
     SYSTEM_GROUP = system_data.SYSTEM_GROUPS[1]
+    SYSTEMS = system_data.SYSTEMS
 
     OPTIONS = {
         'org': ORG['name'],
         'name': SYSTEM_GROUP['name'],
-        'system_uuids' : ['fgadg3943-daf323','34ad5-34ad3-h6ddss4']
+        'system_uuids' : [SYSTEMS[0]['uuid'], SYSTEMS[1]['uuid']]
     }
 
     def setUp(self):
@@ -49,6 +50,8 @@ class SystemGroupAddSystemsTest(CLIActionTestCase):
 
         self.mock(self.action.api, 'add_systems', self.SYSTEM_GROUP)
         self.mock(self.module, 'get_system_group', self.SYSTEM_GROUP)
+        self.mock(self.module, 'get_systems', self.SYSTEMS)
+        self.mock(self.action.api, 'system_group_systems', [])
 
     def test_it_calls_system_group_add_systems_api(self):
         self.action.run()
