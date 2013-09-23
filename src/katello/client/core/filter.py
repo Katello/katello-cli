@@ -391,7 +391,15 @@ class AddRule(FilterAction):
         definition_name = self.get_option('definition_name')
         definition_id = self.get_option('definition_id')
         content = self.get_option('content')
-        inclusion = ("includes" == self.get_option('inclusion'))
+        inclusion_type = self.get_option('inclusion')
+
+        if not inclusion_type in self.inclusion_types:
+            print _("Invalid inclusion type '%(input)s'. Valid inclusion types: %(types)s") % \
+                {'input': inclusion_type, 'types': (", ".join(self.inclusion_types))}
+            return os.EX_DATAERR
+
+        inclusion = (inclusion_type == "includes")
+
         definition = get_cv_definition(org_name, definition_label,
                                        definition_name, definition_id)
         cvd_filter = get_filter(org_name, definition["id"], filter_name, filter_id)

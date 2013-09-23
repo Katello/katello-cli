@@ -34,7 +34,7 @@ class FilterAddRuleTest(CLIActionTestCase):
               }
     FILTER_RULE = "boo"
     CONTENT_TYPE = "rpm"
-    INCLUSION_TYPE= "includes"
+    INCLUSION_TYPE = "includes"
     RULE = {}
     DEF = {"label": "KingKong",
            "name": "KingKong",
@@ -65,3 +65,9 @@ class FilterAddRuleTest(CLIActionTestCase):
         self.run_action()
         self.action.api.create_rule.assert_called_once_with(
             self.FILTER["id"], self.DEF["id"], self.ORG, self.RULE, self.CONTENT_TYPE, True)
+
+    def test_it_returns_error_with_invalid_type(self):
+        options = dict(self.OPTIONS)
+        options["inclusion"] = "invalid"
+        self.mock_options(options)
+        self.run_action(os.EX_DATAERR)
