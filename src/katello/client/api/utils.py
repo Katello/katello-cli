@@ -146,7 +146,7 @@ def get_filter(org_name, def_id, filter_name=None, filter_id=None):
     if filter_name:
         filters = [f for f in filters if f["name"] == filter_name]
     if filter_id:
-        filters = [f for f in filters if f["id"] == filter_id]
+        filters = [f for f in filters if str(f["id"]) == str(filter_id)]
 
     if len(filters) < 1:
         raise ApiDataError(_("Could not find filter [ %s ].") % (filter_name or filter_id))
