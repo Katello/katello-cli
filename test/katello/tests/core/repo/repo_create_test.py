@@ -8,11 +8,11 @@ class RequiredCLIOptionsTests(CLIOptionTestCase):
     disallowed_options = [
         ('--name=repo1', '--url=http://localhost', '--product=product1'),
         ('--org=ACME', '--name=repo1', '--url=http://localhost'),
-        ('--org=ACME', '--url=http://localhost', '--product=product1'),
-        ('--org=ACME', '--name=repo1', '--product=product1')
+        ('--org=ACME', '--url=http://localhost', '--product=product1')
     ]
 
     allowed_options = [
+        ('--org=ACME', '--name=repo1', '--product=product1'),
         ('--org=ACME', '--name=repo1', '--url=http://localhost', '--product=product1'),
         ('--org=ACME', '--name=repo1', '--url=https://localhost', '--product=product1'),
         ('--org=ACME', '--name=repo1', '--url=ftp://localhost', '--product=product1'),

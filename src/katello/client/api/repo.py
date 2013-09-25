@@ -38,9 +38,10 @@ class RepoAPI(KatelloAPI):
         path = "/api/repositories/"
         return self.server.POST(path, repodata)[1]
 
-    def update(self, repo_id, gpgkey, nogpgkey):
+    def update(self, repo_id, gpgkey, nogpgkey, url):
         repodata = {}
         update_dict_unless_none(repodata, "gpg_key_name", gpgkey)
+        update_dict_unless_none(repodata, "url", url)
         if nogpgkey:
             repodata["gpg_key_name"] = ""
         path = "/api/repositories/%s/" % repo_id

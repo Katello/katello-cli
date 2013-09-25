@@ -116,7 +116,7 @@ class Create(RepoAction):
                                help=_("repo label, ASCII identifier for the " +
                                       "repository with no spaces eg: custom-repo1"))
         parser.add_option("--url", dest="url", type="url", schemes=ALLOWED_REPO_URL_SCHEMES,
-            help=_("url path to the repository (required)"))
+            help=_("url path to the repository"))
         opt_parser_add_product(parser, required=1)
         parser.add_option('--unprotected', dest='unprotected', action='store_true', default=False,
             help=_("Publish the repo using http (in addition to https)."))
@@ -128,7 +128,7 @@ class Create(RepoAction):
             help=_("Repo content type ('yum' or 'puppet', default is 'yum')."))
 
     def check_options(self, validator):
-        validator.require(('name', 'org', 'url'))
+        validator.require(('name', 'org'))
         validator.require_at_least_one_of(('product', 'product_label', 'product_id'))
         validator.mutually_exclude('product', 'product_label', 'product_id')
 
@@ -353,13 +353,15 @@ class Update(SingleRepoAction):
             help=_("GPG key to be assigned to the repository; by default, the product's GPG key will be used."))
         parser.add_option('--nogpgkey', action='store_true',
             help=_("Don't assign a GPG key to the repository."))
+        parser.add_option('--url', dest='url', help=_("URL to be used for repository."))
 
     def run(self):
         repo = self.get_repo(True)
         gpgkey   = self.get_option('gpgkey')
         nogpgkey   = self.get_option('nogpgkey')
+        url = self.get_option('url')
 
-        self.api.update(repo['id'], gpgkey, nogpgkey)
+        self.api.update(repo['id'], gpgkey, nogpgkey, url)
         print _("Successfully updated repository [ %s ]") % repo['name']
         return os.EX_OK
 
