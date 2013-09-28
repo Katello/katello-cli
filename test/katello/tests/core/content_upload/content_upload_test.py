@@ -38,6 +38,7 @@ class ContentUploadTest(CLIActionTestCase):
         self.mock(self.module, 'generate_puppet_data', [{}, {}])
         self.mock(self.module, 'generate_rpm_data', [{}, {}])
         self.mock(os.path, 'isfile', True)
+        self.mock(self.action, '_valid_upload_type', True)
 
     def test_yum_content_upload(self):
         content_upload = CONTENT_UPLOADS[0]
