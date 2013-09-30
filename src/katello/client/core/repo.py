@@ -553,6 +553,9 @@ class ContentUpload(SingleRepoAction):
             repo = get_repo(org_name, repo_name, prod_name, prod_label, prod_id, env_name, False)
             repo_id = repo["id"]
 
+        if not self._valid_upload_type(repo_id, content_type):
+            return os.EX_DATAERR
+
         paths = []
         if os.path.isdir(filepath):
             for dirname, __, filenames in os.walk(filepath):
@@ -572,6 +575,14 @@ class ContentUpload(SingleRepoAction):
 
         return os.EX_OK
 
+    def _valid_upload_type(self, repo_id, content_type):
+        repo = self.api.repo(repo_id)
+        if repo["content_type"] != content_type:
+            print _("Repo [ %(repo)s ] does not accept %(type)s uploads.") % \
+                {'repo': repo["name"], 'type': content_type}
+            return False
+        return True
+
     def send_file(self, filepath, repo_id, content_type, chunk):
         filename = os.path.basename(filepath)
         unit_key, metadata = ContentUpload.get_content_data(content_type, filepath)
@@ -579,12 +590,14 @@ class ContentUpload(SingleRepoAction):
         if unit_key is None and metadata is None:
             raise FileUploadError
 
-        upload_id = self.upload_api.create(repo_id)["upload_id"]
-        self.send_content(repo_id, upload_id, filepath, chunk)
-        run_spinner_in_bg(self.upload_api.import_into_repo,
-                          [repo_id, upload_id, unit_key, metadata],
-                          message=_("Uploading '%s' to server, please... ") % filename)
-        self.upload_api.delete(repo_id, upload_id)
+        try:
+            upload_id = self.upload_api.create(repo_id)["upload_id"]
+            self.send_content(repo_id, upload_id, filepath, chunk)
+            run_spinner_in_bg(self.upload_api.import_into_repo,
+                              [repo_id, upload_id, unit_key, metadata],
+                              message=_("Uploading '%s' to server... ") % filename)
+        finally:
+            self.upload_api.delete(repo_id, upload_id)
 
         print _("Successfully uploaded '%s' into repository") % filename
 
