@@ -296,21 +296,29 @@ class AddRemoveProduct(ContentViewDefinitionAction):
 
         products = self.api.products(org_name, view['id'])
         products = [f['id'] for f in products]
-        self.update_products(org_name, view, products, product)
-        return os.EX_OK
+        if self.update_products(org_name, view, products, product):
+            return os.EX_OK
+        else:
+            return os.EX_DATAERR
 
     def update_products(self, org_name, cvd, products, product):
         if self.addition:
             products.append(product['id'])
-            message = _("Added product [ %(prod)s ] to definition [ %(def)s ]" % \
+            message = _("Added product [ %(prod)s ] to definition [ %(def)s ]" %
                         ({"prod": product['label'], "def": cvd["label"]}))
         else:
-            products.remove(product['id'])
-            message = _("Removed product [ %(prod)s ] to definition [ %(def)s ]" % \
-                        ({"prod": product['label'], "def": cvd["label"]}))
+            if product['id'] in products:
+                products.remove(product['id'])
+                message = _("Removed product [ %(prod)s ] from definition [ %(def)s ]" %
+                            ({"prod": product['label'], "def": cvd["label"]}))
+            else:
+                print _("Cannot remove product [ %(prod)s ]. Product not in content view definition [ %(def)s ].") % \
+                    {'prod': product['name'], 'def': cvd['name']}
+                return False
 
         self.api.update_products(org_name, cvd['id'], products)
         print message
+        return True
 
 
 class AddRemoveRepo(ContentViewDefinitionAction):
@@ -361,21 +369,30 @@ class AddRemoveRepo(ContentViewDefinitionAction):
 
         repos = self.api.repos(org_name, view['id'])
         repos = [f['id'] for f in repos]
-        self.update_repos(org_name, view, repos, repo)
-        return os.EX_OK
+        if self.update_repos(org_name, view, repos, repo):
+            return os.EX_OK
+        else:
+            return os.EX_DATAERR
 
     def update_repos(self, org_name, cvd, repos, repo):
         if self.addition:
             repos.append(repo["id"])
-            message = _("Added repository [ %(repo)s ] to definition [ %(def)s ]" % \
+            message = _("Added repository [ %(repo)s ] to definition [ %(def)s ]" %
                         ({"repo": repo["name"], "def": cvd["label"]}))
         else:
-            repos.remove(repo["id"])
-            message = _("Removed repository [ %(repo)s ] to definition [ %(def)s ]" % \
-                        ({"repo": repo["name"], "def": cvd["label"]}))
+            if repo['id'] in repos:
+                repos.remove(repo["id"])
+                message = _("Removed repository [ %(repo)s ] from definition [ %(def)s ]" %
+                            ({"repo": repo["name"], "def": cvd["label"]}))
+            else:
+                print _("Could not remove repository [ %(repo)s ]. Repository not in definition [ %(def)s ].") % \
+                    {'repo': repo['name'], 'def': cvd['name']}
+                return False
+
 
         self.api.update_repos(org_name, cvd['id'], repos)
         print message
+        return True
 
 
 class AddRemoveContentView(ContentViewDefinitionAction):
