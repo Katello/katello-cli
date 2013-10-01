@@ -44,6 +44,11 @@ class ProductListTest(CLIActionTestCase):
         'prov': PROV['name']
     }
 
+    OPTIONS_WITH_ALL = {
+        'org': ORG['name'],
+        'all': True
+    }
+
     def setUp(self):
         self.set_action(List())
         self.set_module(katello.client.core.product)
@@ -68,7 +73,12 @@ class ProductListTest(CLIActionTestCase):
     def test_it_finds_products_by_environment(self):
         self.mock_options(self.OPTIONS_BY_ENV)
         self.run_action()
-        self.action.api.products_by_env.assert_called_once_with(self.ENV['id'])
+        self.action.api.products_by_env.assert_called_once_with(self.ENV['id'], None)
+
+    def test_it_finds_products_by_environment_and_marketing(self):
+        self.mock_options(self.OPTIONS_WITH_ALL)
+        self.run_action()
+        self.action.api.products_by_env.assert_called_once_with(self.ENV['id'], True)
 
     def test_it_finds_provider(self):
         self.mock_options(self.OPTIONS_BY_PROVIDER)
@@ -78,7 +88,7 @@ class ProductListTest(CLIActionTestCase):
     def test_it_finds_products_by_provider(self):
         self.mock_options(self.OPTIONS_BY_PROVIDER)
         self.run_action()
-        self.action.api.products_by_provider.assert_called_once_with(self.PROV['id'])
+        self.action.api.products_by_provider.assert_called_once_with(self.PROV['id'], marketing=None)
 
     def test_it_prints_products(self):
         self.run_action()

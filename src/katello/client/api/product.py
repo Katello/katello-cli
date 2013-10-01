@@ -21,23 +21,28 @@ class ProductAPI(KatelloAPI):
     """
     Connection class to access environment calls
     """
-    def products_by_org(self, orgName, prodName=None):
+    def products_by_org(self, orgName, prodName=None, marketing=False):
         path = "/api/organizations/%s/products" % u_str(orgName)
-        products = self.server.GET(path, {"name": prodName} if prodName != None else {})[1]
+        params = {'include_marketing': marketing}
+        update_dict_unless_none(params, "name", prodName)
+        products = self.server.GET(path, params)[1]
         return products
 
-    def products_by_env(self, envId):
+    def products_by_env(self, envId, marketing=False):
         path = "/api/environments/%s/products" % u_str(envId)
-        products = self.server.GET(path)[1]
+        products = self.server.GET(path, {'include_marketing': marketing})[1]
         return products
 
-    def products_by_provider(self, provId, prodName=None):
+    def products_by_provider(self, provId, prodName=None, marketing=False):
+        params = {'include_marketing': marketing}
+        update_dict_unless_none(params, 'name', prodName)
         path = "/api/providers/%s/products/" % u_str(provId)
-        products = self.server.GET(path, {"name": prodName} if prodName != None else {})[1]
+        products = self.server.GET(path, params)[1]
         return products
 
-    def product_by_name_or_label_or_id(self, orgName, prodName, prodLabel, prodId):
-        params = {}
+    def product_by_name_or_label_or_id(self, orgName, prodName, prodLabel, prodId,
+                                       marketing=False):
+        params = {'include_marketing': marketing}
         update_dict_unless_none(params, "name", prodName)
         update_dict_unless_none(params, "label", prodLabel)
         update_dict_unless_none(params, "cp_id", prodId)
@@ -102,9 +107,9 @@ class ProductAPI(KatelloAPI):
     def repository_sets(self, orgName, prodId):
         path = "/api/organizations/%s/products/%s/repository_sets" % (u_str(orgName), u_str(prodId))
         return self.server.GET(path)[1]
-  
+
     def enable_repository_set(self, orgName, prodId, repoSetId):
-        path = "/api/organizations/%s/products/%s/repository_sets/%s/enable" % (u_str(orgName), 
+        path = "/api/organizations/%s/products/%s/repository_sets/%s/enable" % (u_str(orgName),
                          u_str(prodId), u_str(repoSetId))
         return self.server.POST(path)[1]
 
