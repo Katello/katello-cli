@@ -148,20 +148,14 @@ class List(ProductAction):
             prov = get_provider(org_name, prov_name)
 
             self.printer.set_header(_("Product List For Provider [ %s ]") % (prov_name))
-            prods = self.api.products_by_provider(prov["id"])
+            prods = self.api.products_by_provider(prov["id"], marketing=all_opt)
 
         else:
             env = get_environment(org_name, env_name)
 
             self.printer.set_header(_("Product List For Organization %(org_name)s, Environment '%(env_name)s'") \
                 % {'org_name':org_name, 'env_name':env["name"]})
-            prods = self.api.products_by_env(env['id'])
-
-        # hide marketing products by default
-        if not all_opt:
-            def isNotMarketingProduct(p):
-                return not (("marketing_product" in p) and (p["marketing_product"]))
-            prods = filter(isNotMarketingProduct, prods)
+            prods = self.api.products_by_env(env['id'], all_opt)
 
         self.printer.print_items(prods)
 
