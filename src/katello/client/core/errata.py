@@ -154,10 +154,13 @@ class SystemGroupErrata(ErrataAction):
         system_group_id = system_group['id']
 
         errata = systemGroupApi.errata(org_name, system_group_id, type_in=type_in)
+        for erratum in errata:
+            erratum['applicable_consumers'] = [x['name'] for x in erratum['applicable_consumers']]
+
 
         batch_add_columns(self.printer, {'errata_id': _("ID")}, {'title': _("Title")}, {'type': _("Type")})
-        self.printer.add_column('systems', _('# Systems'), formatter=len)
-        self.printer.add_column('systems', _("Systems"), multiline=True, show_with=printer.VerboseStrategy)
+        self.printer.add_column('applicable_consumers', _('# Systems'), formatter=len)
+        self.printer.add_column('applicable_consumers', _("Systems"), multiline=True, show_with=printer.VerboseStrategy)
 
         self.printer.set_header(_("Errata for system group %(org_name)s in organization %(org_name)s")
             % {'group_name':group_name, 'org_name':org_name})
