@@ -431,3 +431,6 @@ class Update(DistributorAction):
 
 class Distributor(Command):
     description = _('distributor specific actions in the katello server')
+
+class CustomInfo(Command):
+    description = _("make changes to custom info")
