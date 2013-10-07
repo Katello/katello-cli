@@ -510,7 +510,8 @@ class ContentUpload(SingleRepoAction):
             try:
                 unit_key, metadata = generate_puppet_data(filepath)
             except ExtractionException:
-                print _("Invalid puppet module '%s'. Please check the file and try again.") % filepath
+                print _("Invalid puppet module '%s'. Please make sure the file is valid and is named \
+                        author-name-version.tar.gz (eg: puppetlabs-ntp-2.0.1.tar.gz).") % filepath
         else:
             print _("Content type '%s' not valid. Must be puppet or yum.") % content_type
 
