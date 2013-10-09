@@ -44,6 +44,8 @@ ALLOWED_REPO_URL_SCHEMES = ("http", "https", "ftp", "file")
 
 class RepoAction(BaseAction):
 
+    CONTENT_TYPES = ('yum', 'puppet')
+
     def __init__(self):
         super(RepoAction, self).__init__()
         self.api = RepoAPI()
@@ -125,7 +127,7 @@ class Create(RepoAction):
         parser.add_option('--nogpgkey', action='store_true',
             help=_("Don't assign a GPG key to the repository."))
         parser.add_option('--content_type', dest="content_type",
-            help=_("Repo content type ('yum' or 'puppet', default is 'yum')."))
+            help=_("Repo content type (%s; default is 'yum').") % (", ").join(self.CONTENT_TYPES))
 
     def check_options(self, validator):
         validator.require(('name', 'org'))
@@ -510,10 +512,8 @@ class ContentUpload(SingleRepoAction):
             try:
                 unit_key, metadata = generate_puppet_data(filepath)
             except ExtractionException:
-                print _("Invalid puppet module '%s'. Please make sure the file is valid and is named \
-                        author-name-version.tar.gz (eg: puppetlabs-ntp-2.0.1.tar.gz).") % filepath
-        else:
-            print _("Content type '%s' not valid. Must be puppet or yum.") % content_type
+                print _("Invalid puppet module '%s'. Please make sure the file is valid and is named " +
+                        "author-name-version.tar.gz (eg: puppetlabs-ntp-2.0.1.tar.gz).") % filepath
 
         return unit_key, metadata
 
@@ -577,6 +577,11 @@ class ContentUpload(SingleRepoAction):
         return os.EX_OK
 
     def _valid_upload_type(self, repo_id, content_type):
+        if content_type not in self.CONTENT_TYPES:
+            print _("Content type '%(type)s' not valid. Must be one of: %(types)s.") % \
+                    {"type": content_type, "types": (", ").join(self.CONTENT_TYPES)}
+            return False
+
         repo = self.api.repo(repo_id)
         if repo["content_type"] != content_type:
             print _("Repo [ %(repo)s ] does not accept %(type)s uploads.") % \
