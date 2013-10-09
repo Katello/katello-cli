@@ -847,7 +847,8 @@ class AddSystemGroups(SystemAction):
 
         system_groups = SystemGroupAPI().system_groups(org_name, { 'name' : system_group_names})
 
-        if system_groups is None:
+        if len(system_groups) == 0:
+            print _("Could not find any system groups by that name.")
             return os.EX_DATAERR
 
         system_group_ids = [group["id"] for group in system_groups]
@@ -899,7 +900,8 @@ class RemoveSystemGroups(SystemAction):
 
         system_groups = SystemGroupAPI().system_groups(org_name, { 'name' : system_group_names})
 
-        if system_groups is None:
+        if len(system_groups) == 0:
+            print _("Could not find any system groups by that name.")
             return os.EX_DATAERR
 
         system_group_ids = [group["id"] for group in system_groups]
