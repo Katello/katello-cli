@@ -141,7 +141,7 @@ class SystemAsyncTask(AsyncTask):
         return SystemTaskStatusAPI()
 
     def status_messages(self):
-        return [task["result_description"] for task in self._tasks]
+        return [item for task in self._tasks for item in task["result_description"]]
 
 
 class ManifestAsyncTask(AsyncTask):
