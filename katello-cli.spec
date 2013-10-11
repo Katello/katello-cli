@@ -21,7 +21,7 @@ Summary:       Client package for managing application life-cycle for Linux syst
 Group:         Applications/System
 License:       GPLv2
 URL:           http://www.katello.org
-Version:       1.4.3
+Version:       1.4.4
 Release:       1%{?dist}
 Source0:       https://fedorahosted.org/releases/k/a/katello/%{name}-%{version}.tar.gz
 Requires:      %{base_name}-cli-common
@@ -178,6 +178,71 @@ popd
 %{homedir}/tests
 
 %changelog
+* Fri Oct 11 2013 Partha Aji <paji@redhat.com> 1.4.4-1
+- 1012927 - fixing repo discovery on product create (jsherril@redhat.com)
+- 1016624 - fixing issue where system action task result contained array
+  instead of string (jsherril@redhat.com)
+- 1016312: Improving content upload errors (daviddavis@redhat.com)
+- Bug 974098: Adds output of error message to user if an unknown system group
+  is supplied when trying to add systems to a group. (ericdhelms@gmail.com)
+- 1014747 - CLI 'distributor custom_info' does not exist (komidore64@gmail.com)
+- 990478: Filter out marketing products by default (daviddavis@redhat.com)
+- 1012978: Preventing error when removing products and repos
+  (daviddavis@redhat.com)
+- 1013656: Showing a more helpful error message for puppet modules
+  (daviddavis@redhat.com)
+- 1012572: Check the upload type against the repo's content type
+  (daviddavis@redhat.com)
+- 1011092: No longer require feed url for repositories (daviddavis@redhat.com)
+- 1004248 -  Fixed a get_filter call bug (paji@redhat.com)
+- Autobuild f19 packages (paji@redhat.com)
+- 955626: Validate rule inclusion/exclusion type (daviddavis@redhat.com)
+- 990476: system_group: improve behavior of [add|remove]_systems
+  (bbuckingham@redhat.com)
+- 1004240 - Removed 'id' on filter create (paji@redhat.com)
+- 997364 - removing dep calculation for changesets (jsherril@redhat.com)
+- Puppet Uploads: Parse JSON before returning it from puppet utils
+  (daviddavis@redhat.com)
+- Content Uploads: Worked on tests for directory upload (daviddavis@redhat.com)
+- Content uploads: Supporting directories for filepath option
+  (daviddavis@redhat.com)
+- Moved upload_api defn to ContentUpload class (mtapaswi@redhat.com)
+- Content Uploads: Edited comments for utils files (daviddavis@redhat.com)
+- Content Uploads: Checking for exceptions and other tweaks
+  (daviddavis@redhat.com)
+- Fix CLI tests for package uploads (mtapaswi@redhat.com)
+- Add python rpm package for travis (mtapaswi@redhat.com)
+- Fix CLI tests for package uploads (mtapaswi@redhat.com)
+- BZ# 1007128 - Fixes formatting of localized strings. (ogmaciel@gnome.org)
+- Content uploads: Puppet module uploading support (daviddavis@redhat.com)
+- Package uploads: Got CLI working with API (daviddavis@redhat.com)
+- Add Package Upload CLI Support (mtapaswi@redhat.com)
+- converting cli to use new repo discovery api (jsherril@redhat.com)
+- If running in headpin mode, don't show default_environment option.
+  (ogmaciel@gnome.org)
+- The logic behind updating users for headpin referred to variable that wasn't
+  declared. (ogmaciel@gnome.org)
+- Puppet: Adding support for puppet filter rules (daviddavis@redhat.com)
+- 1001202 - distributor remove_custom_info command removes the distributor but
+  throws an invalid error message (komidore64@gmail.com)
+- Repositories: Handling non-yum info for info and list (daviddavis@redhat.com)
+- Puppet: Created puppet_module command (daviddavis@redhat.com)
+- 879241 - [RFE] [cli] missing "Machine Type" in return of `system subscription
+  (komidore64@gmail.com)
+- cli node support (jsherril@redhat.com)
+- 966263 - ldap mode: cli new user creation mandates unnecessary parameters
+  (komidore64@gmail.com)
+- 987937 - CLI - empty string as organization name (komidore64@gmail.com)
+- Puppet Repos: Wrote a system test for puppet repos (daviddavis@redhat.com)
+- headpin-actkey - update act key CLI headpin mode (thomasmckay@redhat.com)
+  extra-long-branch-name-of-awesomeness (komidore64@gmail.com)
+- 966168 - System custom_info add: Duplicate cli error messages
+  (komidore64@gmail.com)
+- 973929 - Message after updating custom info for distributor is invalid in cli
+  (komidore64@gmail.com)
+- Repositories: Added content_type option to repo creation
+  (daviddavis@redhat.com)
+
 * Wed Jul 31 2013 Bryan Kearney <bkearney@redhat.com> 1.4.3-1
 - Merge pull request #55 from komidore64/org-heal-magic (komidore64@gmail.com)
 - Merge pull request #56 from beav/add-get-deleted-consumer-call
