@@ -567,13 +567,22 @@ class ContentUpload(SingleRepoAction):
             print _("Invalid path '%s'.") % filepath
             return os.EX_DATAERR
 
+        uploads = []
         for path in paths:
             try:
-                self.send_file(path, repo_id, content_type, chunk)
+                upload = self.send_file(path, repo_id, content_type, chunk)
             except FileUploadError:
                 if len(paths) > 1:
                     print _("Skipping file '%s'.") % path
+            else:
+                uploads.append(upload)
 
+        run_spinner_in_bg(self.upload_api.import_into_repo, [repo_id, uploads],
+                          message=_("Importing content into repository"))
+
+        self.remove_uploads(repo_id, uploads)
+
+        print _("Successfully imported content into repository.")
         return os.EX_OK
 
     def _valid_upload_type(self, repo_id, content_type):
@@ -589,6 +598,10 @@ class ContentUpload(SingleRepoAction):
             return False
         return True
 
+    def remove_uploads(self, repo_id, uploads):
+        for upload in uploads:
+            self.upload_api.delete(repo_id, upload['id'])
+
     def send_file(self, filepath, repo_id, content_type, chunk):
         filename = os.path.basename(filepath)
         unit_key, metadata = ContentUpload.get_content_data(content_type, filepath)
@@ -598,14 +611,12 @@ class ContentUpload(SingleRepoAction):
 
         try:
             upload_id = self.upload_api.create(repo_id)["upload_id"]
-            self.send_content(repo_id, upload_id, filepath, chunk)
-            run_spinner_in_bg(self.upload_api.import_into_repo,
-                              [repo_id, upload_id, unit_key, metadata],
+            run_spinner_in_bg(self.send_content, [repo_id, upload_id, filepath, chunk],
                               message=_("Uploading '%s' to server... ") % filename)
         finally:
-            self.upload_api.delete(repo_id, upload_id)
+            print _("Successfully uploaded '%s' into repository") % filename
 
-        print _("Successfully uploaded '%s' into repository") % filename
+        return {"id": upload_id, "unit_key": unit_key, "metadata": metadata}
 
     def send_content(self, repo_id, upload_id, filepath, chunk=None):
         if not chunk:

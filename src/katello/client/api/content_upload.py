@@ -33,13 +33,11 @@ class ContentUploadAPI(KatelloAPI):
         path = "/api/repositories/%s/content_uploads/%s/upload_bits/" % (repo_id, upload_id)
         return self.server.PUT(path, data, multipart=True)[1]
 
-    def import_into_repo(self, repo_id, upload_id, unit_key, unit_metadata):
+    def import_into_repo(self, repo_id, uploads):
         data = {
-            'unit_key': unit_key,
-            'unit_metadata': unit_metadata
+            'uploads': uploads
         }
-        path = "/api/repositories/%s/content_uploads/%s/import_into_repo/" % \
-            (repo_id, upload_id)
+        path = "/api/repositories/%s/content_uploads/import_into_repo/" % repo_id
         return self.server.POST(path, data)[1]
 
     def delete(self, repo_id, upload_id):
