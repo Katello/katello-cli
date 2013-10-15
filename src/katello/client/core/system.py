@@ -229,8 +229,8 @@ class InstalledPackages(SystemAction):
         if remove:
             task = self.api.remove_packages(system_id, remove)
         if update:
-            if update == '--all':
-                update_packages = []
+            if update.count('--all') > 0:
+                update_packages = "all"
             else:
                 update_packages = update
             task = self.api.update_packages(system_id, update_packages)
