@@ -21,7 +21,7 @@ class DistributorAPI(KatelloAPI):
     """
     Connection class to access environment calls
     """
-    def create(self, name, org, environment_id, cp_type='candlepin'):
+    def create(self, name, version, org, environment_id, cp_type='candlepin'):
         if environment_id is not None:
             path = "/api/environments/%s/distributors" % environment_id
         else:
@@ -29,7 +29,8 @@ class DistributorAPI(KatelloAPI):
         distdata = {
             "distributor": {
                 "name": name,
-                "cp_type": cp_type
+                "cp_type": cp_type,
+                "version": version
             }
         }
 
@@ -97,4 +98,8 @@ class DistributorAPI(KatelloAPI):
 
     def distributors_by_env(self, environment_id, query = None):
         path = "/api/environments/%s/distributors" % environment_id
+        return self.server.GET(path, query)[1]
+
+    def distributor_versions(self, query = None):
+        path = "/api/distributor_versions"
         return self.server.GET(path, query)[1]
