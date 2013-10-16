@@ -523,8 +523,8 @@ class Packages(SystemGroupAction):
         if remove:
             job = self.api.remove_packages(org_name, system_group_id, remove)
         if update:
-            if update == '--all':
-                update_packages = []
+            if update.count('--all') > 0:
+                update_packages = "all"
             else:
                 update_packages = update
             job = self.api.update_packages(org_name, system_group_id, update_packages)
