@@ -47,10 +47,11 @@ class RepoAPI(KatelloAPI):
         path = "/api/repositories/%s/" % repo_id
         return self.server.PUT(path, {"repository": repodata })[1]
 
-    def repos_by_org_env(self, orgName, envId, includeDisabled=False):
+    def repos_by_org_env(self, orgName, envId, includeDisabled=False, viewId=None):
         data = {
             "include_disabled": includeDisabled
         }
+        update_dict_unless_none(data, "content_view_id", viewId)
         path = "/api/organizations/%s/environments/%s/repositories" % (orgName, envId)
         result_list = self.server.GET(path, data)[1]
         return result_list

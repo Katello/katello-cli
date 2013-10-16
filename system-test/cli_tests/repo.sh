@@ -2,7 +2,7 @@
 
 header "Repo"
 
-test_success "repo list by org and env" repo list --org="$TEST_ORG" --environment="$TEST_ENV"
+test_success "repo list by org, env, and content view" repo list --org="$TEST_ORG" --environment="$TEST_ENV" --content_view="$TEST_VIEW"
 test_success "repo list by org only" repo list --org="$TEST_ORG"
 test_success "repo list by org and product" repo list --org="$TEST_ORG" --product="$FEWUPS_PRODUCT"
 test_failure "repo list by org and unknown product" repo list --org="$TEST_ORG" --product="UNKNOWN_PRODUCT"
