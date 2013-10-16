@@ -19,11 +19,11 @@ class RequiredCLIOptionsTests(CLIOptionTestCase):
 
     disallowed_options = [
         ('--environment=env', ),
+        ('--environment=env', '--org=ACME'),
     ]
 
     allowed_options = [
         ('--org=ACME', ),
-        ('--org=ACME', '--environment=env'),
         ('--org=ACME', '--provider=prov')
     ]
 
@@ -56,29 +56,23 @@ class ProductListTest(CLIActionTestCase):
         self.mock_options(self.OPTIONS_BY_ENV)
         self.mock_printer()
 
-        self.mock(self.action.api, 'products_by_env', product_data.PRODUCTS)
+        self.mock(self.action.api, 'products_by_org', product_data.PRODUCTS)
         self.mock(self.action.api, 'products_by_provider', product_data.PRODUCTS)
 
-        self.mock(self.module, 'get_environment', self.ENV)
         self.mock(self.module, 'get_provider', self.PROV)
 
     def tearDown(self):
         self.restore_mocks()
 
-    def test_it_finds_environment(self):
+    def test_it_finds_products_by_org(self):
         self.mock_options(self.OPTIONS_BY_ENV)
         self.run_action()
-        self.module.get_environment.assert_called_once_with(self.ORG['name'], self.ENV['name'])
+        self.action.api.products_by_org.assert_called_once_with(self.ORG['name'], None, None)
 
-    def test_it_finds_products_by_environment(self):
-        self.mock_options(self.OPTIONS_BY_ENV)
-        self.run_action()
-        self.action.api.products_by_env.assert_called_once_with(self.ENV['id'], None)
-
-    def test_it_finds_products_by_environment_and_marketing(self):
+    def test_it_finds_products_by_org_and_marketing(self):
         self.mock_options(self.OPTIONS_WITH_ALL)
         self.run_action()
-        self.action.api.products_by_env.assert_called_once_with(self.ENV['id'], True)
+        self.action.api.products_by_org.assert_called_once_with(self.ORG['name'], None, True)
 
     def test_it_finds_provider(self):
         self.mock_options(self.OPTIONS_BY_PROVIDER)

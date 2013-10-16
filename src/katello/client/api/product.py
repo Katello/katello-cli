@@ -28,11 +28,6 @@ class ProductAPI(KatelloAPI):
         products = self.server.GET(path, params)[1]
         return products
 
-    def products_by_env(self, envId, marketing=False):
-        path = "/api/environments/%s/products" % u_str(envId)
-        products = self.server.GET(path, {'include_marketing': marketing})[1]
-        return products
-
     def products_by_provider(self, provId, prodName=None, marketing=False):
         params = {'include_marketing': marketing}
         update_dict_unless_none(params, 'name', prodName)
