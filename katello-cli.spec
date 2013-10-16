@@ -21,7 +21,7 @@ Summary:       Client package for managing application life-cycle for Linux syst
 Group:         Applications/System
 License:       GPLv2
 URL:           http://www.katello.org
-Version:       1.4.5
+Version:       1.4.6
 Release:       1%{?dist}
 Source0:       https://fedorahosted.org/releases/k/a/katello/%{name}-%{version}.tar.gz
 Requires:      %{base_name}-cli-common
@@ -178,6 +178,9 @@ popd
 %{homedir}/tests
 
 %changelog
+* Wed Oct 16 2013 Partha Aji <paji@redhat.com> 1.4.6-1
+- Bug #1010339: uploading all repo content before generating metadata.
+
 * Tue Oct 15 2013 Partha Aji <paji@redhat.com> 1.4.5-1
 - modifying cli for new applicability
 
