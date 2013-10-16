@@ -77,7 +77,8 @@ class AsyncTask():
         return not self.is_running()
 
     def failed(self):
-        return len([t for t in self._tasks if t['state'] in ('error', 'timed out', 'failed')])
+        return (len([t for t in self._tasks if t['state'] in ('error', 'timed out', 'failed')]) +
+                len(self.repo_errors()))
 
     def canceled(self):
         return len([t for t in self._tasks if t['state'] in ('cancelled', 'canceled')])
@@ -108,6 +109,19 @@ class AsyncTask():
         for task in self._tasks:
             if isinstance(task["progress"], dict):
                 errors += task['progress'].get('error_details', [])
+        return errors
+
+    def repo_errors(self):
+        errors = []
+        for task in self._tasks:
+            try:
+                if isinstance(task['result'], dict):
+                    errors += task['result'].get('details', {}).get('repository', {}). \
+                              get('details', {}).get('errors', [])
+            except KeyError:
+                # if one of the keys doesn't exist, then there weren't any errors
+                pass
+
         return errors
 
     def errors(self):       
