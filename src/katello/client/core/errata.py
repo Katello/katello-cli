@@ -81,7 +81,7 @@ class List(ErrataAction):
         view_label = self.get_option('view_label')
         view_id = self.get_option('view_id')
 
-        self.printer.add_column('errata_id', _("ID"))
+        self.printer.add_column('errata_id_exact', _("ID"))
         self.printer.add_column('title', _("Title"))
         self.printer.add_column('type', _("Type"))
 
