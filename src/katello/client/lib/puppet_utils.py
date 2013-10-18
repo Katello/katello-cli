@@ -100,7 +100,8 @@ def generate_puppet_data(filename):
     contents = _read_contents(temp_filename)
     unit_key = {"author": author, "name": name, "version": version}
     metadata = json.loads(contents)
-    return unit_key, metadata
+    unit_metadata = dict((k, metadata.get(k, "")) for k in ('dependencies', 'description', 'license', 'project_page', 'source', 'summary', 'tag_list'))
+    return unit_key, unit_metadata
 
 
 def _read_contents(filename):
