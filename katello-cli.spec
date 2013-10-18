@@ -21,7 +21,7 @@ Summary:       Client package for managing application life-cycle for Linux syst
 Group:         Applications/System
 License:       GPLv2
 URL:           http://www.katello.org
-Version:       1.5.2
+Version:       1.5.3
 Release:       1%{?dist}
 Source0:       https://fedorahosted.org/releases/k/a/katello/%{name}-%{version}.tar.gz
 Requires:      %{base_name}-cli-common
@@ -178,7 +178,8 @@ popd
 %{homedir}/tests
 
 %changelog
-* Fri Oct 18 2013 Partha Aji <paji@redhat.com> 1.5.2-1
+
+* Fri Oct 18 2013 Partha Aji <paji@redhat.com> 1.5.3-1
 - 1019172: Limiting the keys for puppet module metadata (daviddavis@redhat.com)
 - 1018236: Node Sync: Update to support reporting unsuccessful/errors
   (bbuckingham@redhat.com)
