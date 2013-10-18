@@ -78,7 +78,7 @@ https://fedorahosted.org/katello/wiki/TestingHowto
 %setup -q
 
 %build
-%if ! 0%{?fastbuild:1}
+%if (0%{?fedora} == 18 || 0%{?rhel} == 6) && ! 0%{?fastbuild:1}
     PYTHONPATH=src/ pylint --rcfile=./etc/spacewalk-pylint.rc --additional-builtins=_ katello
 %endif
 
