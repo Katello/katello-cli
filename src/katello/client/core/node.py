@@ -21,8 +21,8 @@ from katello.client.api.node import NodeAPI
 from katello.client.api.utils import get_node, get_environment
 from katello.client.cli.base import opt_parser_add_node, opt_parser_add_org
 from katello.client.lib.ui.progress import run_spinner_in_bg, wait_for_async_task
-from katello.client.lib.async import AsyncTask
-
+from katello.client.lib.ui.formatters import format_node_sync_errors
+from katello.client.lib.async import AsyncTask, evaluate_task_status
 
 
 # base node action =========================================================
@@ -102,7 +102,12 @@ class Sync(NodeAction):
         sync_tasks = self.api.sync(node_id, env_id)
         task = AsyncTask(sync_tasks)
         run_spinner_in_bg(wait_for_async_task, [task], message=message)
-        print _("Sync Complete")
+
+        return evaluate_task_status(task,
+            ok =     _("Sync of environment [ %s ] completed successfully.") % env_name,
+            failed = _("Sync of environment [ %s ] failed") % env_name,
+            error_formatter = format_node_sync_errors
+        )
 
 class BaseUpdate(NodeAction):
 

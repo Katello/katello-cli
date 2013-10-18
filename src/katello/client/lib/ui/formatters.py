@@ -77,6 +77,11 @@ def format_sync_errors(task):
     return "\n".join([e for e in error_list if e])
 
 
+def format_node_sync_errors(task):
+    error_list = [e["details"]["message"] for e in task.repo_errors()]
+    return "\n".join(error_list)
+
+
 def format_task_errors(errors):
     """
     Format errors returned from AsyncTask
