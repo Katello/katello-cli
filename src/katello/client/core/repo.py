@@ -21,8 +21,9 @@ from katello.client import constants
 from katello.client.api.repo import RepoAPI
 from katello.client.api.organization import OrganizationAPI
 from katello.client.api.content_upload import ContentUploadAPI
-from katello.client.api.utils import get_environment, get_product, get_repo
-from katello.client.cli.base import opt_parser_add_product, opt_parser_add_org, opt_parser_add_environment
+from katello.client.api.utils import get_environment, get_product, get_repo, get_content_view
+from katello.client.cli.base import opt_parser_add_product, opt_parser_add_org, \
+        opt_parser_add_environment, opt_parser_add_content_view
 from katello.client.core.base import BaseAction, Command
 
 from katello.client.lib.control import system_exit
@@ -61,18 +62,21 @@ class RepoAction(BaseAction):
 class SingleRepoAction(RepoAction):
 
     select_by_env = False
+    select_by_cv = False
 
     def setup_parser(self, parser):
-        self.set_repo_select_options(parser, self.select_by_env)
+        self.set_repo_select_options(parser, self.select_by_env, self.select_by_cv)
 
     @classmethod
-    def set_repo_select_options(cls, parser, select_by_env=True):
+    def set_repo_select_options(cls, parser, select_by_env=True, select_by_cv=True):
         parser.add_option('--id', dest='id', help=_("repository ID"))
         parser.add_option('--name', dest='name', help=_("repository name"))
         opt_parser_add_org(parser)
         opt_parser_add_product(parser)
         if select_by_env:
             opt_parser_add_environment(parser, default="Library")
+        if select_by_cv:
+            opt_parser_add_content_view(parser)
 
     @classmethod
     def check_options(cls, validator):
@@ -94,10 +98,20 @@ class SingleRepoAction(RepoAction):
         else:
             envName = None
 
+        if self.select_by_cv:
+            view_name = self.get_option('view_name')
+            view_label = self.get_option('view_label')
+            view_id = self.get_option('view_id')
+        else:
+            view_name = None
+            view_label = None
+            view_id = None
+
         if repoId:
             repo = self.api.repo(repoId)
         else:
-            repo = get_repo(orgName, repoName, prodName, prodLabel, prodId, envName, includeDisabled)
+            repo = get_repo(orgName, repoName, prodName, prodLabel, prodId, envName, includeDisabled,
+                            view_name, view_label, view_id)
 
         return repo
 
@@ -318,6 +332,7 @@ class Info(SingleRepoAction):
 
     description = _('information about a repository')
     select_by_env = True
+    select_by_cv = True
 
     def run(self):
         repo = self.get_repo(True)
@@ -347,7 +362,7 @@ class Info(SingleRepoAction):
 class Update(SingleRepoAction):
 
     description = _('updates repository attributes')
-    select_by_env = True
+    select_by_env = False
 
     def setup_parser(self, parser):
         super(Update, self).setup_parser(parser)
@@ -430,12 +445,14 @@ class List(RepoAction):
         opt_parser_add_org(parser, required=1)
         opt_parser_add_environment(parser, default="Library")
         opt_parser_add_product(parser)
+        opt_parser_add_content_view(parser)
         parser.add_option('--include_disabled', action="store_true", dest='disabled',
             help=_("list also disabled repositories"))
 
     def check_options(self, validator):
         validator.require('org')
         validator.mutually_exclude('product', 'product_label', 'product_id')
+        validator.mutually_exclude('view_name', 'view_label', 'view_id')
 
     def run(self):
         orgName = self.get_option('org')
@@ -444,6 +461,9 @@ class List(RepoAction):
         prodLabel = self.get_option('product_label')
         prodId = self.get_option('product_id')
         listDisabled = self.has_option('disabled')
+        content_view_name = self.get_option('view_name')
+        content_view_label = self.get_option('view_label')
+        content_view_id = self.get_option('view_id')
 
         batch_add_columns(self.printer, {'id': _("ID")}, {'name': _("Name")},
                           {'label': _("Label")}, {'content_type': _("Type")},
@@ -452,6 +472,10 @@ class List(RepoAction):
 
         self.printer.add_column('last_sync', _("Last Sync"), formatter=format_sync_time)
 
+        if content_view_name or content_view_label or content_view_id:
+            content_view = get_content_view(orgName, content_view_label, content_view_name, content_view_id)
+            content_view_id = content_view['id']
+
         prodIncluded = prodName or prodLabel or prodId
         if prodIncluded and envName:
             env  = get_environment(orgName, envName)
@@ -459,7 +483,7 @@ class List(RepoAction):
 
             self.printer.set_header(_("Repo List For Org %(org_name)s Environment %(env_name)s Product %(prodName)s") %
                 {'org_name':orgName, 'env_name':env["name"], 'prodName':prodName})
-            repos = self.api.repos_by_env_product(env["id"], prod["id"], None, listDisabled)
+            repos = self.api.repos_by_env_product(env["id"], prod["id"], None, listDisabled, content_view_id)
             self.printer.print_items(repos)
 
         elif prodIncluded:
@@ -473,7 +497,7 @@ class List(RepoAction):
             env  = get_environment(orgName, envName)
             self.printer.set_header(_("Repo List For Org %(orgName)s Environment %(env_name)s") %
                 {'orgName':orgName, 'env_name':env["name"]})
-            repos = self.api.repos_by_org_env(orgName,  env["id"], listDisabled)
+            repos = self.api.repos_by_org_env(orgName,  env["id"], listDisabled, content_view_id)
             self.printer.print_items(repos)
 
         return os.EX_OK

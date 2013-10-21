@@ -16,13 +16,13 @@
 
 import os
 
-from katello.client.cli.base import opt_parser_add_org, opt_parser_add_environment
+from katello.client.cli.base import opt_parser_add_org
 from katello.client.core import repo
 from katello.client.core.repo import ALLOWED_REPO_URL_SCHEMES
 from katello.client.core.base import BaseAction, Command
 from katello.client.api.product import ProductAPI
 from katello.client.api.repo import RepoAPI
-from katello.client.api.utils import get_environment, get_provider, get_product, get_sync_plan
+from katello.client.api.utils import get_provider, get_product, get_sync_plan
 from katello.client.lib.async import AsyncTask, evaluate_task_status
 from katello.client.lib.ui import printer
 from katello.client.lib.ui.formatters import format_sync_state, format_sync_time
@@ -43,23 +43,18 @@ class ProductAction(BaseAction):
 
 class SingleProductAction(ProductAction):
 
-    select_by_env = False
-
     def setup_parser(self, parser):
-        self.set_product_select_options(parser, self.select_by_env)
+        self.set_product_select_options(parser)
 
     def check_options(self, validator):
         self.check_product_select_options(validator)
 
     @classmethod
-    def set_product_select_options(cls, parser, select_by_env=True):
+    def set_product_select_options(cls, parser):
         opt_parser_add_org(parser, required=1)
         parser.add_option('--name', dest='name', help=_("product name (require name, label or id)"))
         parser.add_option('--label', dest='label', help=_("product label (require name, label or id)"))
         parser.add_option('--id', dest='id', help=_("product id (require name, label or id)"))
-
-        if select_by_env:
-            opt_parser_add_environment(parser, default="Library")
 
     @classmethod
     def check_product_select_options(cls, validator):
@@ -73,10 +68,9 @@ class SingleProductAction(ProductAction):
 class SetSyncPlan(SingleProductAction):
 
     description = _('set a synchronization plan')
-    select_by_env = False
 
     def setup_parser(self, parser):
-        self.set_product_select_options(parser, self.select_by_env)
+        self.set_product_select_options(parser)
         parser.add_option('--plan', dest='plan', help=_("synchronization plan name (required)"))
 
     def check_options(self, validator):
@@ -102,7 +96,6 @@ class SetSyncPlan(SingleProductAction):
 class RemoveSyncPlan(SingleProductAction):
 
     description = _('unset a synchronization plan')
-    select_by_env = False
 
     def run(self):
         orgName  = self.get_option('org')
@@ -123,7 +116,6 @@ class List(ProductAction):
 
     def setup_parser(self, parser):
         opt_parser_add_org(parser, required=1)
-        opt_parser_add_environment(parser, default="Library")
         parser.add_option('--provider', dest='prov',
                        help=_("provider name, lists provider's product in the Library"))
         parser.add_option('--all', dest='all', action='store_true',
@@ -134,7 +126,6 @@ class List(ProductAction):
 
     def run(self):
         org_name = self.get_option('org')
-        env_name = self.get_option('environment')
         prov_name = self.get_option('prov')
         all_opt = self.get_option('all')
 
@@ -151,11 +142,9 @@ class List(ProductAction):
             prods = self.api.products_by_provider(prov["id"], marketing=all_opt)
 
         else:
-            env = get_environment(org_name, env_name)
-
-            self.printer.set_header(_("Product List For Organization %(org_name)s, Environment '%(env_name)s'") \
-                % {'org_name':org_name, 'env_name':env["name"]})
-            prods = self.api.products_by_env(env['id'], all_opt)
+            self.printer.set_header(_("Product List For Organization %(org_name)s") \
+                % {'org_name':org_name})
+            prods = self.api.products_by_org(org_name, None, all_opt)
 
         self.printer.print_items(prods)
 
@@ -166,7 +155,6 @@ class List(ProductAction):
 class Sync(SingleProductAction):
 
     description = _('synchronize a product')
-    select_by_env = False
 
     def run(self):
         orgName     = self.get_option('org')
@@ -189,7 +177,6 @@ class Sync(SingleProductAction):
 class CancelSync(SingleProductAction):
 
     description = _('cancel currently running synchronization')
-    select_by_env = False
 
     def run(self):
         orgName     = self.get_option('org')
@@ -208,7 +195,6 @@ class CancelSync(SingleProductAction):
 class Status(SingleProductAction):
 
     description = _('status of product\'s synchronization')
-    select_by_env = False
 
     def run(self):
         orgName     = self.get_option('org')
@@ -314,7 +300,7 @@ class Create(ProductAction):
 class ListRepositorySets(SingleProductAction):
     description = _('List repository sets for a Red Hat product')
     def setup_parser(self, parser):
-        self.set_product_select_options(parser, False)
+        self.set_product_select_options(parser)
 
     def check_options(self, validator):
         self.check_product_select_options(validator)
@@ -339,7 +325,7 @@ class ListRepositorySets(SingleProductAction):
 class EnableRepositorySet(SingleProductAction):
     description = _('Enable a repository set for a Red Hat product')
     def setup_parser(self, parser):
-        self.set_product_select_options(parser, False)
+        self.set_product_select_options(parser)
         parser.add_option('--set_name', dest='set_name',
                            help=_("name of the repository set to enable"))
 
@@ -368,7 +354,7 @@ class EnableRepositorySet(SingleProductAction):
 class DisableRepositorySet(SingleProductAction):
     description = _('Disable a repository set for a Red Hat product')
     def setup_parser(self, parser):
-        self.set_product_select_options(parser, False)
+        self.set_product_select_options(parser)
         parser.add_option('--set_name', dest='set_name',
                            help=_("name of the repository set to disable"))
 
@@ -400,7 +386,7 @@ class Update(SingleProductAction):
     description = _('update a product\'s attributes')
 
     def setup_parser(self, parser):
-        self.set_product_select_options(parser, False)
+        self.set_product_select_options(parser)
         parser.add_option('--description', dest='description',
                               help=_("change description of the product"))
         parser.add_option('--gpgkey', dest='gpgkey',
@@ -431,7 +417,6 @@ class Update(SingleProductAction):
 class Delete(SingleProductAction):
 
     description = _('delete a product and its content')
-    select_by_env = False
 
     def run(self):
         orgName  = self.get_option('org')

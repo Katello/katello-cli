@@ -31,6 +31,8 @@ class RequiredCLIOptionsTests(CLIOptionTestCase):
         ('--org=ACME', '--product=prod'),
         ('--org=ACME', '--product=prod', '--environment=env'),
         ('--org=ACME', '--product=prod', '--include_disabled'),
+        ('--org=ACME', '--product=prod', '--include_disabled', '--content_view=view1'),
+        ('--org=ACME', '--product=prod', '--include_disabled', '--content_view_id=1'),
     ]
 
 class RepoListTest(CLIActionTestCase):
@@ -88,7 +90,7 @@ class RepoListTest(CLIActionTestCase):
     def test_it_gets_repos_by_org(self):
         self.mock_options(self.OPTIONS_BY_ORG)
         self.run_action()
-        self.action.api.repos_by_org_env.assert_called_once_with(self.ORG['name'], self.ENV['id'], False)
+        self.action.api.repos_by_org_env.assert_called_once_with(self.ORG['name'], self.ENV['id'], False, None)
 
     def test_it_gets_repos_by_product(self):
         self.mock_options(self.OPTIONS_BY_PRODUCT)
