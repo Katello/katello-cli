@@ -571,19 +571,21 @@ class ContentUpload(SingleRepoAction):
         for path in paths:
             try:
                 upload = self.send_file(path, repo_id, content_type, chunk)
+                uploads.append(upload)
             except FileUploadError:
                 if len(paths) > 1:
                     print _("Skipping file '%s'.") % path
-            else:
-                uploads.append(upload)
 
-        run_spinner_in_bg(self.upload_api.import_into_repo, [repo_id, uploads],
-                          message=_("Importing content into repository"))
+        if uploads:
+            run_spinner_in_bg(self.upload_api.import_into_repo, [repo_id, uploads],
+                              message=_("Importing content into repository"))
 
-        self.remove_uploads(repo_id, uploads)
+            self.remove_uploads(repo_id, uploads)
 
-        print _("Successfully imported content into repository.")
-        return os.EX_OK
+            print _("Successfully imported content into repository.")
+            return os.EX_OK
+        else:
+            return os.EX_DATAERR
 
     def _valid_upload_type(self, repo_id, content_type):
         if content_type not in self.CONTENT_TYPES:
