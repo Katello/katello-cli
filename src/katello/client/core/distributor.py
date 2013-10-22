@@ -144,12 +144,14 @@ class Create(DistributorAction):
     def setup_parser(self, parser):
         super(Create, self).setup_parser(parser)
         parser.add_option('--name', dest='name', help=_("distributor name"))
+        parser.add_option('--version', dest='version', help=_("distributor version"))
 
     def check_options(self, validator):
         validator.require(('name', 'org'))
 
     def run(self):
         name = self.get_option('name')
+        version = self.get_option('version')
         org = self.get_option('org')
         environment_name = self.get_option('environment')
 
@@ -157,8 +159,7 @@ class Create(DistributorAction):
         if environment_name is not None:
             environment_id = get_environment(org, environment_name)['id']
 
-        distributor = self.api.create(name, org, environment_id,
-                                   'distributor')
+        distributor = self.api.create(name, version, org, environment_id, 'distributor')
 
         test_record(distributor,
             _("Successfully created distributor [ %s ]") % name,
@@ -428,6 +429,22 @@ class Update(DistributorAction):
             _("Could not update distributor [ %s ]") % distributor['name']
         )
 
+class ListVersions(DistributorAction):
+    description = _("List available distributor versions")
+
+    def setup_parser(self, parser):
+        pass
+
+    def check_options(self, validator):
+        pass
+
+    def run(self):
+        versions = self.api.distributor_versions()
+
+        self.printer.set_header(_("Available Versions for Distributors"))
+        self.printer.add_column('name', _("Name"))
+        self.printer.print_items(versions)
+        return os.EX_OK
 
 class Distributor(Command):
     description = _('distributor specific actions in the katello server')

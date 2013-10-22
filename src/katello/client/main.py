@@ -228,6 +228,7 @@ def setup_admin(katello_cmd, mode=get_katello_mode()):
 
     distributor_cmd = distributor.Distributor()
     distributor_cmd.add_command('list', distributor.List())
+    distributor_cmd.add_command('list-versions', distributor.ListVersions())
     distributor_cmd.add_command('create', distributor.Create())
     distributor_cmd.add_command('delete', distributor.Delete())
     distributor_cmd.add_command('subscriptions', distributor.Subscriptions())
