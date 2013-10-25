@@ -71,13 +71,13 @@ def generate_puppet_data(filename):
     """
     temp_dir = tempfile.gettempdir()
 
-    data = re.match('^(.+)?-(.+)?-(.+)?\.tar\.gz$', os.path.basename(filename))
-    if data is None:
+    if not validate_file_name(filename):
         raise ExtractionException(filename), None, sys.exc_info()[2]
     else:
-        author = data.group(1)
-        name = data.group(2)
-        version = data.group(3)
+        unit_key = generate_unit_key(filename)
+        author = unit_key['author']
+        name = unit_key['name']
+        version = unit_key['version']
 
     # Extract the module's metadata file itself
     metadata_file_path = '%s-%s-%s/%s' % (author, name, version,
@@ -102,6 +102,32 @@ def generate_puppet_data(filename):
     metadata = json.loads(contents)
     unit_metadata = dict((k, metadata.get(k, "")) for k in ('dependencies', 'description', 'license', 'project_page', 'source', 'summary', 'tag_list'))
     return unit_key, unit_metadata
+
+
+# copied from pulp_puppet_extensions_admin/pulp_puppet/extensions/admin/repo/upload.py
+def validate_file_name(name):
+    """
+    Validator for use with okaara's CLI argument validation framework.
+
+    :param name_list: list of filenames
+    :type  name_list: type
+    """
+    if re.match('^.+?-.+?-.+?\.tar\.gz$', os.path.basename(name)) is None:
+        return False
+
+    return True
+
+
+# copied from pulp_puppet_extensions_admin/pulp_puppet/extensions/admin/repo/upload.py
+def generate_unit_key(filename):
+    root_filename = os.path.basename(filename)
+    root_filename = root_filename[:-len('.tar.gz')]
+    author, name, version = root_filename.split('-', 2)
+    unit_key = {'author': author,
+                'name': name,
+                'version': version
+               }
+    return unit_key
 
 
 def _read_contents(filename):
