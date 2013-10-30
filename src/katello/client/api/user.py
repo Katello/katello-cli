@@ -21,7 +21,7 @@ class UserAPI(KatelloAPI):
     """
     Connection class to access User Data
     """
-    def create(self, name, pw, email, disabled, default_environment, default_locale=None):
+    def create(self, name, pw, email, disabled, default_organization, default_locale=None):
         userdata = {"username": name,
                     "password": pw,
                     "email": email,
@@ -30,8 +30,8 @@ class UserAPI(KatelloAPI):
         if default_locale is not None:
             userdata["default_locale"] = default_locale
 
-        if default_environment is not None:
-            userdata.update(default_environment_id=default_environment['id'])
+        if default_organization is not None:
+            userdata.update(default_organization_id=default_organization['label'])
 
         path = "/api/users/"
         return self.server.POST(path, userdata)[1]
@@ -40,16 +40,16 @@ class UserAPI(KatelloAPI):
         path = "/api/users/%s" % u_str(user_id)
         return self.server.DELETE(path)[1]
 
-    def update(self, user_id, pw, email, disabled, default_environment, default_locale=None):
+    def update(self, user_id, pw, email, disabled, default_organization, default_locale=None):
         userdata = {}
         userdata = update_dict_unless_none(userdata, "password", pw)
         userdata = update_dict_unless_none(userdata, "email", email)
         userdata = update_dict_unless_none(userdata, "disabled", disabled)
 
-        if default_environment is None:
-            userdata.update(default_environment_id=None)                        # pylint: disable=E1101
-        elif default_environment is not False:
-            userdata.update(default_environment_id=default_environment['id'])   # pylint: disable=E1101
+        if default_organization is None:
+            userdata.update(default_organization_id=None)                        # pylint: disable=E1101
+        elif default_organization is not False:
+            userdata.update(default_organization_id=default_organization['label'])   # pylint: disable=E1101
 
         if default_locale is not None:
             userdata = update_dict_unless_none(userdata, "default_locale", default_locale)

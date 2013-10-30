@@ -19,7 +19,7 @@ import os
 from katello.client.api.user import UserAPI
 from katello.client.api.user_role import UserRoleAPI
 from katello.client.api.about import AboutAPI
-from katello.client.api.utils import get_user, get_environment
+from katello.client.api.utils import get_user, get_organization
 from katello.client.core.base import BaseAction, Command
 from katello.client.lib.utils.io import convert_to_mime_type, attachment_file_name, save_report
 from katello.client.lib.utils.data import test_record
@@ -65,8 +65,6 @@ class Create(UserAction):
         self.about_api = AboutAPI()
 
     def setup_parser(self, parser):
-        mode = get_katello_mode()
-
         parser.add_option('--username', dest='username', help=_("user name (required)"))
         parser.add_option('--password', dest='password', help=_("initial password (required)"))
         parser.add_option('--email', dest='email', help=_("email (required)"))
@@ -74,9 +72,6 @@ class Create(UserAction):
             help=_("disabled account (default is 'false')"), default=False)
         parser.add_option('--default_organization', dest='default_organization',
                                help=_("user's default organization name"))
-        if mode == 'katello':
-            parser.add_option('--default_environment', dest='default_environment',
-                               help=_("user's default environment name"))
         parser.add_option('--default_locale', dest='default_locale',
                                help=_("user's default locale"))
 
@@ -85,7 +80,6 @@ class Create(UserAction):
         validator.require('username')
         if not auth == 'ldap':
             validator.require(('password', 'email'))
-        validator.require_all_or_none(('default_organization', 'default_environment'))
 
     def run(self):
         username = self.get_option('username')
@@ -93,15 +87,14 @@ class Create(UserAction):
         email = self.get_option('email')
         disabled = self.get_option('disabled')
         default_organization = self.get_option('default_organization')
-        default_environment = self.get_option('default_environment')
         default_locale = self.get_option('default_locale')
 
-        if default_environment is not None:
-            environment = get_environment(default_organization, default_environment)
+        if default_organization is not None:
+            organization = get_organization(default_organization)
         else:
-            environment = None
+            organization = None
 
-        user = self.api.create(username, password, email, disabled, environment, default_locale)
+        user = self.api.create(username, password, email, disabled, organization, default_locale)
         test_record(user,
             _("Successfully created user [ %s ]") % username,
             _("Could not create user [ %s ]") % username
@@ -168,17 +161,13 @@ class Update(UserAction):
     description = _('update an user')
 
     def setup_parser(self, parser):
-        mode = get_katello_mode()
         parser.add_option('--username', dest='username', help=_("user name (required)"))
         parser.add_option('--password', dest='password', help=_("initial password"))
         parser.add_option('--email', dest='email', help=_("email"))
         parser.add_option("--disabled", dest="disabled", help=_("disabled account"))
         parser.add_option('--default_organization', dest='default_organization',
                                help=_("user's default organization name"))
-        if mode == 'katello':
-            parser.add_option('--default_environment', dest='default_environment',
-                               help=_("user's default environment name"))
-        parser.add_option('--no_default_environment', dest='no_default_environment', action="store_true",
+        parser.add_option('--no_default_organization', dest='no_default_organization', action="store_true",
                                help=_("user's default environment is None"))
         parser.add_option('--default_locale', dest='default_locale',
                                help=_("user's default locale"))
@@ -191,46 +180,35 @@ class Update(UserAction):
         if mode == 'katello':
             validator.require_at_least_one_of((
                 'password', 'email', 'disabled',
-                'default_organization', 'default_environment',
-                'no_default_environment', 'default_locale'))
+                'default_organization', 'no_default_organization',
+		'default_locale'))
         else:
             validator.require_at_least_one_of((
                 'password', 'email', 'disabled',
-                'default_organization',
-                'no_default_environment', 'default_locale'))
+                'default_organization', 'no_default_organization',
+		'default_locale'))
 
-        if mode == 'katello':
-            validator.require_all_or_none(('default_organization', 'default_environment'))
-            validator.mutually_exclude(('default_organization', 'default_environment'), 'no_default_environment')
-        else:
-            validator.mutually_exclude(('default_organization'), 'no_default_environment')
+        validator.mutually_exclude(('default_organization'), 'no_default_organization')
 
     def run(self):
-        mode = get_katello_mode()
         username = self.get_option('username')
         password = self.get_option('password')
         email = self.get_option('email')
         disabled = self.get_option('disabled')
         default_organization = self.get_option('default_organization')
-        if mode == 'katello':
-            default_environment = self.get_option('default_environment')
-        elif default_organization is not None:
-            default_environment = 'Library'
-        else:
-            default_environment = None
-        no_default_environment = self.get_option('no_default_environment')
+        no_default_organization = self.get_option('no_default_organization')
         default_locale = self.get_option('default_locale')
 
-        if no_default_environment is True:
-            environment = None
-        elif default_environment is not None:
-            environment = get_environment(default_organization, default_environment)
+        if no_default_organization is True:
+            organization = None
+        elif default_organization is not None:
+            organization = get_organization(default_organization)
         else:
-            environment = False
+            organization = False
 
         user = get_user(username)
 
-        user = self.api.update(user['id'], password, email, disabled, environment, default_locale)
+        user = self.api.update(user['id'], password, email, disabled, organization, default_locale)
         print _("Successfully updated user [ %s ]") % username
         return os.EX_OK
 
