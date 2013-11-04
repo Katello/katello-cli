@@ -1,6 +1,6 @@
 mock 
 nose 
-python-dateutil 
+python-dateutil<=2.1
 kerberos
 pep8 
 pylint==0.26.0

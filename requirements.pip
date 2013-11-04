@@ -2,4 +2,4 @@ M2Crypto
 kerberos
 iniparse
 simplejson
-python-dateutil
+python-dateutil<=2.1
