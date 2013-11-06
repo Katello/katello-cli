@@ -126,7 +126,7 @@ class Info(DistributorAction):
         if 'environment' in distributor:
             distributor['environment'] = distributor['environment']['name']
 
-        batch_add_columns(self.printer, {'name': _("Name")}, \
+        batch_add_columns(self.printer, {'name': _("Name")}, {'version': _("Version")},
             {'uuid': _("UUID")}, {'environment': _("Environment")})
         self.printer.add_column('created_at', _("Created"), formatter=format_date)
         self.printer.add_column('updated_at', _("Last Updated"), formatter=format_date)
