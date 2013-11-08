@@ -27,7 +27,7 @@ class SystemAPI(KatelloAPI):
     # pylint: disable=R0913
     def register(self, name, org, environment_id, activation_keys, cp_type,
                  release=None, sla=None, facts=None, view_id=None, installed_products=None,
-                 last_checkin=None):
+                 last_checkin=None, uuid=None):
         if environment_id is not None:
             path = "/api/environments/%s/systems" % environment_id
         else:
@@ -51,6 +51,8 @@ class SystemAPI(KatelloAPI):
             sysdata["installedProducts"] = installed_products
         if last_checkin:
             sysdata["lastCheckin"] = last_checkin
+        if uuid:
+            sysdata["uuid"] = uuid
 
         return self.server.POST(path, sysdata)[1]
 
